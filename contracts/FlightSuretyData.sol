@@ -1,4 +1,4 @@
-pragma solidity ^0.4.25;
+pragma solidity ^0.4.24;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
@@ -9,8 +9,21 @@ contract FlightSuretyData {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
+    // Smart Contract Control
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
+    mapping (address => bool) authorizedAppContractsMap;
+
+    // Airline data
+    struct Airline {
+        string airlineName;
+        address addr;
+        bool isActivated; //Need deposite ether to activate
+    }
+    mapping(address => Airline) public airlines;
+
+
+    
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -98,13 +111,20 @@ contract FlightSuretyData {
     *      Can only be called from FlightSuretyApp contract
     *
     */   
-    function registerAirline
-                            (   
-                            )
+    function registerAirline(string airlineName,
+                             address airlineAddress)
                             external
-                            pure
     {
+        airlines[airlineAddress] = Airline(airlineName, airlineAddress, false);
     }
+
+    function setAirlineActivateStatus(address addr,
+                                      bool nextActivateState)
+                                      external
+    {
+        airlines[addr].isActivated = nextActivateState;
+    }
+                                      
 
 
    /**
