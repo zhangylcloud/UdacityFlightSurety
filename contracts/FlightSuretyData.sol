@@ -14,14 +14,32 @@ contract FlightSuretyData {
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
     mapping (address => bool) authorizedAppContractsMap;
 
-    // Airline data
-    struct Airline {
-        string airlineName;
-        address addr;
-        bool isActivated; //Need deposite ether to activate
+    struct Passenger {
+        address passengerAddress;
+        uint passengerId;
     }
-    mapping(address => Airline) public airlines;
 
+    struct Insurance {
+        uint insuranceId;
+        address airlineAddress;
+        uint flightId;
+        address passengerId;
+    }
+
+    struct Flight {
+        uint flightId;
+        address airlineAddress;
+        uint departureStatusCode;
+        mapping (uint => Insurance) insuranceMap; //Mapping insurance id to insurance
+    }
+
+    struct Airline {
+        address airlineAddress;
+        bool isActivated; //Need deposite ether to activate
+        mapping(uint => Flight) flightMap; // Map flightId to flight
+    }
+    mapping(address => Airline) internal airlineMap;
+    mapping(address => Passenger) internal passengerMap;
 
     
 
@@ -69,6 +87,19 @@ contract FlightSuretyData {
         _;
     }
 
+    modifier requireAirlineExist(address airlineAddress)
+    {
+        require(airlineMap[airlineAddress].airlineAddress > 0, "airline does not exist");
+        _;
+    }
+
+    modifier requireFlightExist(address airlineAddress,
+                                uint flightId)
+    {
+        require(airlineMap[airlineAddress].airlineAddress > 0, "airline does not exist, so flight doesn't exist");
+        require(airlineMap[airlineAddress].flightMap[flightId].flightId > 0, "flight does not exist");
+        _;
+    }
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
@@ -111,20 +142,42 @@ contract FlightSuretyData {
     *      Can only be called from FlightSuretyApp contract
     *
     */   
-    function registerAirline(string airlineName,
-                             address airlineAddress)
+    function registerAirline(address airlineAddress)
                             external
     {
-        airlines[airlineAddress] = Airline(airlineName, airlineAddress, false);
+        airlineMap[airlineAddress] = Airline(airlineAddress, false);
     }
 
-    function setAirlineActivateStatus(address addr,
+    function setAirlineActivateStatus(address airlineAddress,
                                       bool nextActivateState)
                                       external
     {
-        airlines[addr].isActivated = nextActivateState;
+        airlineMap[airlineAddress].isActivated = nextActivateState;
     }
                                       
+    function getFlightInfo(address airlineAddress,
+                       uint flightId)
+                       external
+                       requireFlightExist(airlineAddress, flightId)
+                       returns (uint, address, uint)
+    {
+        Flight memory flight = airlineMap[airlineAddress].flightMap[flightId];
+        uint flightIdRet = flight.flightId;
+        address airlineAddressRet = flight.airlineAddress;
+        uint departureStatusCodeRet = flight.departureStatusCode;
+        return(flightIdRet, airlineAddressRet, departureStatusCodeRet);
+    }
+
+    function addFlight(address airlineAddress,
+                       uint flightId,
+                       uint statusCode)
+                       external
+                       requireAirlineExist(airlineAddress)
+    {
+        require(airlineMap[airlineAddress].flightMap[flightId].flightId > 0, "Flight already exist"); //TODO check if this way works
+        airlineMap[airlineAddress].flightMap[flightId] = Flight(flightId, airlineAddress, statusCode);
+    }
+
 
 
    /**
