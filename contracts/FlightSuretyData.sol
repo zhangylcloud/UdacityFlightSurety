@@ -9,6 +9,8 @@ contract FlightSuretyData {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
+    uint insurancePrice;
+
     // Smart Contract Control
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
@@ -23,7 +25,9 @@ contract FlightSuretyData {
         uint insuranceId;
         address airlineAddress;
         uint flightId;
-        address passengerId;
+        address passengerAddress;
+        bool isTriggered;
+        bool isPaid;
     }
 
     struct Flight {
@@ -99,6 +103,19 @@ contract FlightSuretyData {
         require(airlineMap[airlineAddress].airlineAddress > 0, "airline does not exist, so flight doesn't exist");
         require(airlineMap[airlineAddress].flightMap[flightId].flightId > 0, "flight does not exist");
         _;
+    }
+
+    modifier payingEnough(uint amount)
+    {
+        require(msg.value >= amount, "not paying enough");
+        _;
+    }
+
+    modifier returnChange(uint requiredAmount)
+    {
+        _;
+        require(msg.value >= requiredAmount, "not paying enough");
+        //TODO send money back to caller
     }
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
@@ -176,6 +193,19 @@ contract FlightSuretyData {
     {
         require(airlineMap[airlineAddress].flightMap[flightId].flightId > 0, "Flight already exist"); //TODO check if this way works
         airlineMap[airlineAddress].flightMap[flightId] = Flight(flightId, airlineAddress, statusCode);
+    }
+
+    function addInsurance(uint insuranceId,
+                          address airlineAddress,
+                          uint flightId,
+                          address passengerAddress)
+                          external
+                          requireFlightExist(airlineAddress, flightId)
+                          paidEnough(insurancePrice)
+    {
+        require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[insuranceId].insuranceId != 0, "Insurance Already Exist");
+        airlineMap[airlineAddress].flightMap[flightId].insuranceMap[insuranceId] = 
+            Insurance(insuranceId, airlineAddress, flightId, passengerAddress, false, false);
     }
 
 
