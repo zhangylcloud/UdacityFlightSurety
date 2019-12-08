@@ -9,7 +9,7 @@ contract FlightSuretyData {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
-    uint insurancePrice;
+    uint insurancePrice = 1 ether;
 
     // Smart Contract Control
     address private contractOwner;                                      // Account used to deploy contract
@@ -115,7 +115,8 @@ contract FlightSuretyData {
     {
         _;
         require(msg.value >= requiredAmount, "not paying enough");
-        //TODO send money back to caller
+        uint amountToReturn = msg.value - requiredAmount;
+        msg.sender.transfer(amountToReturn);
     }
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
@@ -160,7 +161,7 @@ contract FlightSuretyData {
     *
     */   
     function registerAirline(address airlineAddress)
-                            external
+                             external
     {
         airlineMap[airlineAddress] = Airline(airlineAddress, false);
     }
@@ -170,6 +171,17 @@ contract FlightSuretyData {
                                       external
     {
         airlineMap[airlineAddress].isActivated = nextActivateState;
+    }
+
+    function getAirlineInfo(address airlineAddress)
+                            external
+                            view
+                            requireAirlineExist(airlineAddress)
+                            returns(address, bool)
+    {
+        Airline memory airline = airlineMap[airlineAddress];
+        return(airline.airlineAddress,
+               airline.isActivated);
     }
                                       
     function getFlightInfo(address airlineAddress,
@@ -201,11 +213,29 @@ contract FlightSuretyData {
                           address passengerAddress)
                           external
                           requireFlightExist(airlineAddress, flightId)
-                          paidEnough(insurancePrice)
+                          payingEnough(insurancePrice)
+                          returnChange(insurancePrice)
     {
-        require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[insuranceId].insuranceId != 0, "Insurance Already Exist");
+        require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[insuranceId].insuranceId == 0, "Insurance Already Exist");
         airlineMap[airlineAddress].flightMap[flightId].insuranceMap[insuranceId] = 
             Insurance(insuranceId, airlineAddress, flightId, passengerAddress, false, false);
+    }
+
+    function getInsurance(uint insuranceId,
+                          address airlineAddress,
+                          uint flightId)
+                          external
+                          requireFlightExist(airlineAddress, flightId)
+                          returns(uint, address, uint, address, bool, bool)
+    {
+        require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[insuranceId].insuranceId != 0, "Insurance Doesn't Exist");
+        Insurance memory insurance = airlineMap[airlineAddress].flightMap[flightId].insuranceMap[insuranceId];
+        return(insurance.insuranceId, 
+               insurance.airlineAddress, 
+               insurance.flightId, 
+               insurance.passengerAddress, 
+               insurance.isTriggered,
+               insurance.isPaid);
     }
 
 
