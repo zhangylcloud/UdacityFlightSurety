@@ -122,6 +122,13 @@ contract FlightSuretyData {
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
 
+    function authorizeCaller(address contractAddress)
+                             external
+    {
+        require(msg.sender == contractOwner, "only contract owner can authorize app contract");
+        authorizedAppContractsMap[contractAddress] = true;
+    }
+
     /**
     * @dev Get operating status of contract
     *
