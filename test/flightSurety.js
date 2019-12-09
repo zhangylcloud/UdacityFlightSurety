@@ -68,7 +68,7 @@ contract('Flight Surety Tests', async (accounts) => {
         assert.equal(reverted, true, "Access not blocked for requireIsOperational");      
 
         // Set it back for other tests to work
-        await config.flightSuretyData.setOperatingStatus(true, {nonce: await web3.eth.getTransactionCount(accounts[0])});
+        await config.flightSuretyData.setOperatingStatus(true/*, {nonce: await web3.eth.getTransactionCount(accounts[0])}*/);
 
     });
 
@@ -101,7 +101,7 @@ contract('Flight Surety Tests', async (accounts) => {
         try {
             await config.flightSuretyData.setAirlineActivateStatus(config.firstAirline, true, {from: config.owner});
             let result = await config.flightSuretyData.getAirlineInfo.call(config.firstAirline); 
-            await config.flightSuretyData.registerAirline(newAirline, {from: config.firstAirline, nonce: await web3.eth.getTransactionCount(config.firstAirline)});
+            await config.flightSuretyData.registerAirline(newAirline, {from: config.firstAirline/*, nonce: await web3.eth.getTransactionCount(config.firstAirline)*/});
         }
         catch(e) {
             console.log(e);
