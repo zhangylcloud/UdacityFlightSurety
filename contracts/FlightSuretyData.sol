@@ -62,6 +62,7 @@ contract FlightSuretyData {
                                 public 
     {
         contractOwner = msg.sender;
+        airlineMap[contractOwner] = Airline(contractOwner, true);
     }
 
     /********************************************************************************************/
@@ -118,6 +119,15 @@ contract FlightSuretyData {
         uint amountToReturn = msg.value - requiredAmount;
         msg.sender.transfer(amountToReturn);
     }
+
+    // Caller must be airline and must be activated
+    modifier requireCallerActivated()
+    {
+        require(airlineMap[msg.sender].airlineAddress > 0, "airline does not exist");
+        require(airlineMap[msg.sender].isActivated == true, "airline is not activated");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
@@ -153,7 +163,7 @@ contract FlightSuretyData {
                                 bool mode
                             ) 
                             external
-                            requireContractOwner 
+                            //requireContractOwner() 
     {
         operational = mode;
     }
@@ -169,6 +179,8 @@ contract FlightSuretyData {
     */   
     function registerAirline(address airlineAddress)
                              external
+                             requireIsOperational()
+                             requireCallerActivated()
     {
         airlineMap[airlineAddress] = Airline(airlineAddress, false);
     }
@@ -190,10 +202,24 @@ contract FlightSuretyData {
         return(airline.airlineAddress,
                airline.isActivated);
     }
+
+    function isAirline(address airlineAddress)
+                       external
+                       view
+                       returns(bool)
+    {
+        if(airlineMap[airlineAddress].airlineAddress == address(0)){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
                                       
     function getFlightInfo(address airlineAddress,
                        uint flightId)
                        external
+                       view
                        requireFlightExist(airlineAddress, flightId)
                        returns (uint, address, uint)
     {
@@ -232,6 +258,7 @@ contract FlightSuretyData {
                           address airlineAddress,
                           uint flightId)
                           external
+                          view
                           requireFlightExist(airlineAddress, flightId)
                           returns(uint, address, uint, address, bool, bool)
     {
