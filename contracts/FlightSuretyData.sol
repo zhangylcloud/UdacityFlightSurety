@@ -34,6 +34,7 @@ contract FlightSuretyData {
         uint flightId;
         address airlineAddress;
         uint departureStatusCode;
+        uint256 timestamp;
         mapping (address => Insurance) insuranceMap; //Mapping passengerAddress to insurance
     }
 
@@ -151,6 +152,7 @@ contract FlightSuretyData {
 
     function authorizeCaller(address contractAddress)
                              external
+                             requireIsOperational()
     {
         require(msg.sender == contractOwner, "only contract owner can authorize app contract");
         authorizedAppContractsMap[contractAddress] = true;
@@ -250,13 +252,34 @@ contract FlightSuretyData {
 
     function addFlight(address airlineAddress,
                        uint flightId,
-                       uint statusCode)
+                       uint statusCode,
+                       uint256 timestamp)
                        external
                        requireIsOperational()
                        requireAirlineExist(airlineAddress)
     {
-        require(airlineMap[airlineAddress].flightMap[flightId].flightId > 0, "Flight already exist"); //TODO check if this way works
-        airlineMap[airlineAddress].flightMap[flightId] = Flight(flightId, airlineAddress, statusCode);
+        require(airlineMap[airlineAddress].flightMap[flightId].flightId == 0, "Flight already exist"); //TODO check if this way works
+        airlineMap[airlineAddress].flightMap[flightId] = Flight(flightId, airlineAddress, statusCode, timestamp);
+    }
+
+    function setFlightStatusCode(address airlineAddress,
+                                 uint flightId,
+                                 uint newStatusCode)
+                                 external
+                                 requireIsOperational()
+                                 requireFlightExist(airlineAddress, flightId)
+    {
+        airlineMap[airlineAddress].flightMap[flightId].departureStatusCode = newStatusCode;
+    }
+
+    function updateFlightTimestamp(address airlineAddress,
+                                   uint flightId,
+                                   uint256 newTimestamp)
+                                   external
+                                   requireIsOperational()
+                                   requireFlightExist(airlineAddress, flightId)
+    {
+        airlineMap[airlineAddress].flightMap[flightId].timestamp = newTimestamp;
     }
 
     function addInsurance(address airlineAddress,
@@ -336,12 +359,15 @@ contract FlightSuretyData {
      *  @dev Transfers eligible payout funds to insuree
      *
     */
-    function pay
-                            (
-                            )
-                            external
-                            pure
+    function withdrawMoney(uint amount,
+                 address receiverAddress)
+                 requireIsOperational()
+                 requirePassengerExist(receiverAddress)
+                 external
     {
+        require(passengerMap[receiverAddress].creditedAmount >= amount);
+        passengerMap[receiverAddress].creditedAmount.sub(amount);
+        receiverAddress.transfer(amount);
     }
 
    /**
@@ -349,26 +375,22 @@ contract FlightSuretyData {
     *      resulting in insurance payouts, the contract should be self-sustaining
     *
     */   
-    function fund
-                            (   
-                            )
-                            public
-                            payable
+    function fund() public payable
     {
     }
 
-    function getFlightKey
-                        (
-                            address airline,
-                            string memory flight,
-                            uint256 timestamp
-                        )
-                        pure
-                        internal
-                        returns(bytes32) 
-    {
-        return keccak256(abi.encodePacked(airline, flight, timestamp));
-    }
+    //function getFlightKey
+    //                    (
+    //                        address airline,
+    //                        string memory flight,
+    //                        uint256 timestamp
+    //                    )
+    //                    pure
+    //                    internal
+    //                    returns(bytes32) 
+    //{
+    //    return keccak256(abi.encodePacked(airline, flight, timestamp));
+    //}
 
     /**
     * @dev Fallback function for funding smart contract.
