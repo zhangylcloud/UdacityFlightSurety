@@ -292,13 +292,12 @@ contract FlightSuretyData {
 
     function addInsurance(address airlineAddress,
                           uint flightId,
-                          address passengerAddress)
+                          address passengerAddress,
+                          uint insuranceAmount)
                           external
                           requireIsOperational()
                           requireFlightExist(airlineAddress, flightId)
                           requirePassengerExist(passengerAddress)
-                          payingEnough(insurancePrice)
-                          returnChange(insurancePrice)
     {
         require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].passengerAddress == address(0), "Insurance Already Exist");
         airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress] = 

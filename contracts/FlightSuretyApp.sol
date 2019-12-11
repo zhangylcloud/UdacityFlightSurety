@@ -26,6 +26,8 @@ contract FlightSuretyApp {
 
     uint private constant AIRLINE_COUNT_THRESHOLD = 5;
 
+    uint private constant MAX_INSURANCE_FEE = 1 ether;
+
     address private contractOwner;          // Account used to deploy contract
 
     //struct Flight {
@@ -146,14 +148,33 @@ contract FlightSuretyApp {
     * @dev Register a future flight for insuring.
     *
     */  
-    function registerFlight
-                                (
-                                )
-                                external
-                                pure
+    function registerFlight(uint flightId,
+                            uint statusCode,
+                            uint256 timestamp)
+                            external
+                            requireIsOperational()
+                            requireCallerActivatedAirline()
     {
-
+        dataContract.addFlight(msg.sender,
+                               flightId,
+                               statusCode,
+                               timestamp);
     }
+
+
+    function buyInsurance(address airlineAddress,
+                          uint flightId,
+                          address passengerAddress)
+                          external
+                          payable
+                          requireIsOperational()
+    {
+        require(msg.value < MAX_INSURANCE_FEE, "Can't buy insurnace larger than insurance cap");
+        address(dataContract).transfer(msg.value);
+        dataContract.addInsurance(airlineAddress, flightId, passengerAddress, msg.value);
+    }
+                          
+
     
    /**
     * @dev Called after oracle has updated flight status
@@ -306,18 +327,18 @@ contract FlightSuretyApp {
     }
 
 
-    function getFlightKey
-                        (
-                            address airline,
-                            string flight,
-                            uint256 timestamp
-                        )
-                        pure
-                        internal
-                        returns(bytes32) 
-    {
-        return keccak256(abi.encodePacked(airline, flight, timestamp));
-    }
+    //function getFlightKey
+    //                    (
+    //                        address airline,
+    //                        string flight,
+    //                        uint256 timestamp
+    //                    )
+    //                    pure
+    //                    internal
+    //                    returns(bytes32) 
+    //{
+    //    return keccak256(abi.encodePacked(airline, flight, timestamp));
+    //}
 
     // Returns array of three non-duplicating integers from 0-9
     function generateIndexes
@@ -379,7 +400,7 @@ contract FlightSuretyData {
     function addFlight(address, uint, uint, uint256) external;
     function setFlightStatusCode(address, uint, uint) external;
     function updateFlightTimestamp(address, uint, uint256) external;
-    function addInsurance(address, uint, address) external;
+    function addInsurance(address, uint, address, uint) external;
     function addPassenger(address, uint) external;
     function getPassenger(address) external view returns(address, uint, uint);
     function creditInsurees(address, uint, address, uint) external;
