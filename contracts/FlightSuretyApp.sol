@@ -104,7 +104,7 @@ contract FlightSuretyApp {
                             (   
                             )
                             external
-                            pure
+                            requireIsOperational()
                             returns(bool success, uint256 votes)
     {
         return (success, 0);
@@ -335,3 +335,22 @@ contract FlightSuretyApp {
 // endregion
 
 }   
+
+contract FlightSuretyData {
+    function authorizeCaller(address) external;
+    function isOperational() external view returns(bool);
+    function registerAirline(address) external;
+    function setAirlineActivateStatus(address, bool) external;
+    function getAirlineInfo(address) external view returns(address, bool);
+    function isAirline(address) external view returns(bool);
+    function getFlightInfo(address, uint) external view returns(uint, address, uint);
+    function addFlight(address, uint, uint, uint256) external;
+    function setFlightStatusCode(address, uint, uint) external;
+    function updateFlightTimestamp(address, uint, uint256) external;
+    function addInsurance(address, uint, address) external;
+    function addPassenger(address, uint) external;
+    function getPassenger(address) external view returns(address, uint, uint);
+    function creditInsurees(address, uint, address, uint) external;
+    function withdrawMoney(uint, address) external;
+    function fund() public payable;
+}
