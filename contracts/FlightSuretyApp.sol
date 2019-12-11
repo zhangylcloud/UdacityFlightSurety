@@ -15,7 +15,7 @@ contract FlightSuretyApp {
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
-
+    FlightSuretyData dataContract;
     // Flight status codees
     uint8 private constant STATUS_CODE_UNKNOWN = 0;
     uint8 private constant STATUS_CODE_ON_TIME = 10;
@@ -23,6 +23,8 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
     uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
+
+    uint private constant AIRLINE_COUNT_THRESHOLD = 5;
 
     address private contractOwner;          // Account used to deploy contract
 
@@ -34,6 +36,8 @@ contract FlightSuretyApp {
     //}
     //mapping(bytes32 => Flight) private flights;
 
+    mapping(address => mapping(address => bool)) voteMap; //  mapping(newAirlineAddress => mapping(voterAddress => isVoteYes))
+    mapping(address => uint) voteCountMap; // mapping(newAirlineAddress => voteCount)
  
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -62,6 +66,21 @@ contract FlightSuretyApp {
         require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
     }
+
+    modifier requireCallerIsAirline()
+    {
+        require(dataContract.isAirline(msg.sender), "Caller is not airline");
+        _;
+    }
+
+    modifier requireCallerActivatedAirline()
+    {
+        require(dataContract.isAirline(msg.sender), "Caller is not airline");
+        (address airlineAddress, bool isActivated) = dataContract.getAirlineInfo(msg.sender);
+        require(isActivated, "Caller airline is not activated");
+        _;
+    }
+
 
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
@@ -100,13 +119,25 @@ contract FlightSuretyApp {
     * @dev Add an airline to the registration queue
     *
     */   
-    function registerAirline
-                            (   
-                            )
-                            external
-                            requireIsOperational()
-                            returns(bool success, uint256 votes)
+    function registerAirline(address airlineAddress)
+                             external
+                             requireIsOperational()
+                             requireCallerActivatedAirline()
+                             returns(bool success, uint256 votes)
     {
+        require(!dataContract.isAirline(airlineAddress), "Airline already exist");
+        require(voteMap[airlineAddress][msg.sender] == false, "You have already voted");
+        voteMap[airlineAddress][msg.sender] == true;
+        voteCountMap[airlineAddress] = voteCountMap[airlineAddress] + 1;
+        uint airlineCount = dataContract.getAirlineCount();
+        if(airlineCount < AIRLINE_COUNT_THRESHOLD){
+            dataContract.registerAirline(airlineAddress);
+        }
+        else{
+            if(voteCountMap[airlineAddress].mul(2) >= airlineCount){
+                dataContract.registerAirline(airlineAddress);
+            }
+        }
         return (success, 0);
     }
 
@@ -339,6 +370,7 @@ contract FlightSuretyApp {
 contract FlightSuretyData {
     function authorizeCaller(address) external;
     function isOperational() external view returns(bool);
+    function getAirlineCount() public returns (uint);
     function registerAirline(address) external;
     function setAirlineActivateStatus(address, bool) external;
     function getAirlineInfo(address) external view returns(address, bool);

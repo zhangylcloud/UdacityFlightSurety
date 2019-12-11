@@ -46,6 +46,8 @@ contract FlightSuretyData {
     mapping(address => Airline) internal airlineMap;
     mapping(address => Passenger) internal passengerMap;
 
+    uint private airlineCount = 0;
+
     
 
     /********************************************************************************************/
@@ -164,7 +166,7 @@ contract FlightSuretyData {
     * @return A bool that is the current operating status
     */      
     function isOperational() 
-                            public 
+                            external 
                             view 
                             returns(bool) 
     {
@@ -191,6 +193,11 @@ contract FlightSuretyData {
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
 
+    function getAirlineCount() public returns (uint)
+    {
+        return airlineCount;
+    }
+
    /**
     * @dev Add an airline to the registration queue
     *      Can only be called from FlightSuretyApp contract
@@ -202,6 +209,7 @@ contract FlightSuretyData {
                              requireCallerActivated()
     {
         airlineMap[airlineAddress] = Airline(airlineAddress, false);
+        airlineCount++;
     }
 
     function setAirlineActivateStatus(address airlineAddress,
