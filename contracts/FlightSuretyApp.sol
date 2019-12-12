@@ -28,6 +28,9 @@ contract FlightSuretyApp {
 
     uint private constant MAX_INSURANCE_FEE = 1 ether;
 
+    uint private constant INSURANCE_MULTIPLE_NUMERATOR = 3;
+    uint private constant INSURANCE_MULTIPLE_DENOMINATOR = 2;
+
     address private contractOwner;          // Account used to deploy contract
 
     //struct Flight {
@@ -180,43 +183,39 @@ contract FlightSuretyApp {
     * @dev Called after oracle has updated flight status
     *
     */  
-    function processFlightStatus
-                                (
-                                    address airline,
-                                    string memory flight,
-                                    uint256 timestamp,
-                                    uint8 statusCode
-                                )
-                                internal
-                                pure
+    function processFlightStatus(address airlineAddress, 
+                                 uint flightId, 
+                                 uint256 timestamp, 
+                                 uint8 statusCode)                                
+                                 requireIsOperational()
+                                 internal
     {
+        dataContract.setFlightStatusCode(airlineAddress, flightId, statusCode);
+        dataContract.updateFlightTimestamp(airlineAddress, flightId, timestamp);
+        if(statusCode == STATUS_CODE_LATE_AIRLINE){
+            dataContract.creditAllInsurees(airlineAddress, flightId, INSURANCE_MULTIPLE_NUMERATOR, INSURANCE_MULTIPLE_DENOMINATOR);
+        }
     }
 
 
     // Generate a request for oracles to fetch flight information
-    function fetchFlightStatus
-                        (
-                            address airline,
-                            string flight,
-                            uint256 timestamp                            
-                        )
-                        external
+    function fetchFlightStatus(address airlineAddress,
+                               uint flightId)
+                               external
     {
         uint8 index = getRandomIndex(msg.sender);
 
         // Generate a unique key for storing the request
-        bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp));
+        bytes32 key = keccak256(abi.encodePacked(index, airlineAddress, flightId));
         oracleResponses[key] = ResponseInfo({
                                                 requester: msg.sender,
                                                 isOpen: true
                                             });
-
-        emit OracleRequest(index, airline, flight, timestamp);
+        emit OracleRequest(index, airlineAddress, flightId);
     } 
 
 
 // region ORACLE MANAGEMENT
-
     // Incremented to add pseudo-randomness at various points
     uint8 private nonce = 0;    
 
@@ -245,18 +244,18 @@ contract FlightSuretyApp {
     }
 
     // Track all oracle responses
-    // Key = hash(index, flight, timestamp)
+    // Key = hash(index, airline, flight)
     mapping(bytes32 => ResponseInfo) private oracleResponses;
 
     // Event fired each time an oracle submits a response
-    event FlightStatusInfo(address airline, string flight, uint256 timestamp, uint8 status);
+    event FlightStatusInfo(address airline, uint flightId, uint256 timestamp, uint8 status);
 
-    event OracleReport(address airline, string flight, uint256 timestamp, uint8 status);
+    event OracleReport(address airline, uint flightId, uint256 timestamp, uint8 status);
 
     // Event fired when flight status request is submitted
     // Oracles track this and if they have a matching index
     // they fetch data and submit a response
-    event OracleRequest(uint8 index, address airline, string flight, uint256 timestamp);
+    event OracleRequest(uint8 index, address airlineAddress, uint flightId);
 
 
     // Register an oracle with the contract
@@ -300,7 +299,7 @@ contract FlightSuretyApp {
                         (
                             uint8 index,
                             address airline,
-                            string flight,
+                            uint flightId,
                             uint256 timestamp,
                             uint8 statusCode
                         )
@@ -309,20 +308,20 @@ contract FlightSuretyApp {
         require((oracles[msg.sender].indexes[0] == index) || (oracles[msg.sender].indexes[1] == index) || (oracles[msg.sender].indexes[2] == index), "Index does not match oracle request");
 
 
-        bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp)); 
+        bytes32 key = keccak256(abi.encodePacked(index, airline, flightId, timestamp)); 
         require(oracleResponses[key].isOpen, "Flight or timestamp do not match oracle request");
 
         oracleResponses[key].responses[statusCode].push(msg.sender);
 
         // Information isn't considered verified until at least MIN_RESPONSES
         // oracles respond with the *** same *** information
-        emit OracleReport(airline, flight, timestamp, statusCode);
+        emit OracleReport(airline, flightId, timestamp, statusCode);
         if (oracleResponses[key].responses[statusCode].length >= MIN_RESPONSES) {
 
-            emit FlightStatusInfo(airline, flight, timestamp, statusCode);
+            emit FlightStatusInfo(airline, flightId, timestamp, statusCode);
 
             // Handle flight status as appropriate
-            processFlightStatus(airline, flight, timestamp, statusCode);
+            processFlightStatus(airline, flightId, timestamp, statusCode);
         }
     }
 
@@ -403,7 +402,8 @@ contract FlightSuretyData {
     function addInsurance(address, uint, address, uint) external;
     function addPassenger(address, uint) external;
     function getPassenger(address) external view returns(address, uint, uint);
-    function creditInsurees(address, uint, address, uint) external;
+    //function creditInsurees(address, uint, address, uint) external;
+    function creditAllInsurees(address, uint, uint, uint) external;
     function withdrawMoney(uint, address) external;
     function fund() public payable;
 }

@@ -28,6 +28,7 @@ contract FlightSuretyData {
         address passengerAddress;
         bool isTriggered;
         bool isPaid;
+        uint insuredAmount;
     }
 
     struct Flight {
@@ -35,6 +36,7 @@ contract FlightSuretyData {
         address airlineAddress;
         uint departureStatusCode;
         uint256 timestamp;
+        address[] passengerInsuredList;
         mapping (address => Insurance) insuranceMap; //Mapping passengerAddress to insurance
     }
 
@@ -267,7 +269,7 @@ contract FlightSuretyData {
                        requireAirlineExist(airlineAddress)
     {
         require(airlineMap[airlineAddress].flightMap[flightId].flightId == 0, "Flight already exist"); //TODO check if this way works
-        airlineMap[airlineAddress].flightMap[flightId] = Flight(flightId, airlineAddress, statusCode, timestamp);
+        airlineMap[airlineAddress].flightMap[flightId] = Flight(flightId, airlineAddress, statusCode, timestamp, new address[](0));
     }
 
     function setFlightStatusCode(address airlineAddress,
@@ -301,7 +303,8 @@ contract FlightSuretyData {
     {
         require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].passengerAddress == address(0), "Insurance Already Exist");
         airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress] = 
-            Insurance(airlineAddress, flightId, passengerAddress, false, false);
+            Insurance(airlineAddress, flightId, passengerAddress, false, false, insuranceAmount);
+        airlineMap[airlineAddress].flightMap[flightId].passengerInsuredList.push(passengerAddress);
     }
 
     function getInsurance(address airlineAddress,
@@ -310,7 +313,7 @@ contract FlightSuretyData {
                           external
                           view
                           requireFlightExist(airlineAddress, flightId)
-                          returns(address, uint, address, bool, bool)
+                          returns(address, uint, address, bool, bool, uint)
     {
         require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].passengerAddress != address(0), "Insurance Doesn't Exist");
         Insurance memory insurance = airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress];
@@ -318,7 +321,8 @@ contract FlightSuretyData {
                insurance.flightId, 
                insurance.passengerAddress, 
                insurance.isTriggered,
-               insurance.isPaid);
+               insurance.isPaid,
+               insurance.insuredAmount);
     }
 
     function addPassenger(address passengerAddress,
@@ -345,22 +349,40 @@ contract FlightSuretyData {
     /**
      *  @dev Credits payouts to insurees
     */
-    function creditInsurees(address airlineAddress,
-                            uint flightId,
-                            address passengerAddress,
-                            uint amountToCredit)
-                            external
-                            requireIsOperational()
-                            requireFlightExist(airlineAddress, flightId)
-                            requirePassengerExist(passengerAddress)
-                            requireInsuranceExist(airlineAddress, flightId, passengerAddress)
+    function creditInsuree(address airlineAddress,
+                           uint flightId,
+                           address passengerAddress,
+                           uint insuranceMultipleNumerator,
+                           uint insuranceMultipleDenominator)
+                           private
+                           requireIsOperational()
+                           requirePassengerExist(passengerAddress)
+                           requireInsuranceExist(airlineAddress, flightId, passengerAddress)
     {
         require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isTriggered == true, "insurance is not triggered");
         require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isPaid == false, "insurance is already credited");
         airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isPaid = true;
-        passengerMap[passengerAddress].creditedAmount.add(amountToCredit);
+        uint insuredAmount = airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].insuredAmount;
+        passengerMap[passengerAddress].creditedAmount.add(insuredAmount.mul(insuranceMultipleNumerator).div(insuranceMultipleDenominator));
     }
-    
+
+    function creditAllInsureesOfFlight(address airlineAddress,
+                                       uint flightId,
+                                       uint insuranceMultipleNumerator,
+                                       uint insuranceMultipleDenominator)
+                                       external
+                                       requireIsOperational()
+                                       requireFlightExist(airlineAddress, flightId)
+    {
+        for(uint i = 0; i < airlineMap[airlineAddress].flightMap[flightId].passengerInsuredList.length; ++i){
+            creditInsuree(airlineAddress, 
+                          flightId, 
+                          airlineMap[airlineAddress].flightMap[flightId].passengerInsuredList[i],
+                          insuranceMultipleNumerator,
+                          insuranceMultipleDenominator);
+        }
+    }
+
 
     /**
      *  @dev Transfers eligible payout funds to insuree
