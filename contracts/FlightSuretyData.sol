@@ -218,6 +218,7 @@ contract FlightSuretyData {
                                       bool nextActivateState)
                                       external
                                       requireIsOperational()
+                                      requireAirlineExist(airlineAddress)
     {
         airlineMap[airlineAddress].isActivated = nextActivateState;
     }

@@ -16,6 +16,9 @@ contract FlightSuretyApp {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
     FlightSuretyData dataContract;
+
+    uint private constant AIRLINE_ACTIVATION_FEE= 10 ether;
+
     // Flight status codees
     uint8 private constant STATUS_CODE_UNKNOWN = 0;
     uint8 private constant STATUS_CODE_ON_TIME = 10;
@@ -43,6 +46,8 @@ contract FlightSuretyApp {
 
     mapping(address => mapping(address => bool)) voteMap; //  mapping(newAirlineAddress => mapping(voterAddress => isVoteYes))
     mapping(address => uint) voteCountMap; // mapping(newAirlineAddress => voteCount)
+
+    event testing(uint num);
  
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -130,20 +135,44 @@ contract FlightSuretyApp {
                              requireCallerActivatedAirline()
                              returns(bool success, uint256 votes)
     {
+        emit testing(1);
         require(!dataContract.isAirline(airlineAddress), "Airline already exist");
         require(voteMap[airlineAddress][msg.sender] == false, "You have already voted");
+        emit testing(2);
         voteMap[airlineAddress][msg.sender] == true;
         voteCountMap[airlineAddress] = voteCountMap[airlineAddress] + 1;
+        emit testing(3);
+        voteMap[airlineAddress][msg.sender] == true;
         uint airlineCount = dataContract.getAirlineCount();
+        emit testing(4);
+        voteMap[airlineAddress][msg.sender] == true;
         if(airlineCount < AIRLINE_COUNT_THRESHOLD){
+            emit testing(5);
             dataContract.registerAirline(airlineAddress);
+            emit testing(6);
         }
         else{
+            emit testing(7);
             if(voteCountMap[airlineAddress].mul(2) >= airlineCount){
+                emit testing(8);
                 dataContract.registerAirline(airlineAddress);
+                emit testing(9);
             }
         }
+        emit testing(10);
         return (success, 0);
+    }
+
+    function activateAirline(address airlineAddress)
+                             external
+                             payable
+                             requireIsOperational()
+    {
+        require(dataContract.isAirline(airlineAddress), "Airline doesn't exist");
+        require(msg.value >= AIRLINE_ACTIVATION_FEE, "Airline doesn't pay enough to activate");
+        address(dataContract).transfer(AIRLINE_ACTIVATION_FEE);
+        dataContract.setAirlineActivateStatus(airlineAddress, true);
+        msg.sender.transfer(msg.value - AIRLINE_ACTIVATION_FEE);
     }
 
 
@@ -248,7 +277,7 @@ contract FlightSuretyApp {
     mapping(bytes32 => ResponseInfo) private oracleResponses;
 
     // Event fired each time an oracle submits a response
-    event FlightStatusInfo(address airline, uint flightId, uint256 timestamp, uint8 status);
+    event FlightStatusInfo(address airline, uint flightId, uint8 status);
 
     event OracleReport(address airline, uint flightId, uint256 timestamp, uint8 status);
 
@@ -256,6 +285,8 @@ contract FlightSuretyApp {
     // Oracles track this and if they have a matching index
     // they fetch data and submit a response
     event OracleRequest(uint8 index, address airlineAddress, uint flightId);
+
+
 
 
     // Register an oracle with the contract
@@ -298,7 +329,7 @@ contract FlightSuretyApp {
     function submitOracleResponse
                         (
                             uint8 index,
-                            address airline,
+                            address airlineAddress,
                             uint flightId,
                             uint256 timestamp,
                             uint8 statusCode
@@ -306,22 +337,20 @@ contract FlightSuretyApp {
                         external
     {
         require((oracles[msg.sender].indexes[0] == index) || (oracles[msg.sender].indexes[1] == index) || (oracles[msg.sender].indexes[2] == index), "Index does not match oracle request");
-
-
-        bytes32 key = keccak256(abi.encodePacked(index, airline, flightId, timestamp)); 
+        bytes32 key = keccak256(abi.encodePacked(index, airlineAddress, flightId)); 
         require(oracleResponses[key].isOpen, "Flight or timestamp do not match oracle request");
 
         oracleResponses[key].responses[statusCode].push(msg.sender);
 
         // Information isn't considered verified until at least MIN_RESPONSES
         // oracles respond with the *** same *** information
-        emit OracleReport(airline, flightId, timestamp, statusCode);
+        emit OracleReport(airlineAddress, flightId, timestamp, statusCode);
         if (oracleResponses[key].responses[statusCode].length >= MIN_RESPONSES) {
 
-            emit FlightStatusInfo(airline, flightId, timestamp, statusCode);
+            emit FlightStatusInfo(airlineAddress, flightId, statusCode);
 
             // Handle flight status as appropriate
-            processFlightStatus(airline, flightId, timestamp, statusCode);
+            processFlightStatus(airlineAddress, flightId, timestamp, statusCode);
         }
     }
 
