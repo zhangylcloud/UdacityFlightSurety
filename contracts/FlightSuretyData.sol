@@ -409,6 +409,10 @@ contract FlightSuretyData {
     {
     }
 
+
+    function dummy() external
+    {}
+
     //function getFlightKey
     //                    (
     //                        address airline,
@@ -432,6 +436,8 @@ contract FlightSuretyData {
     {
         fund();
     }
+
+
 
 
 }

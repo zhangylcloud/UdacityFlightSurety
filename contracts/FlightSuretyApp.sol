@@ -100,12 +100,11 @@ contract FlightSuretyApp {
     * @dev Contract constructor
     *
     */
-    constructor
-                                (
-                                ) 
-                                public 
+    constructor(address dataContractAddress)
+                public 
     {
         contractOwner = msg.sender;
+        dataContract = FlightSuretyData(dataContractAddress);
     }
 
     /********************************************************************************************/
@@ -412,6 +411,13 @@ contract FlightSuretyApp {
         return random;
     }
 
+
+    function callDummy() external
+    {
+        emit testing(10);
+        dataContract.dummy();
+    }
+
 // endregion
 
 }   
@@ -435,4 +441,5 @@ contract FlightSuretyData {
     function creditAllInsurees(address, uint, uint, uint) external;
     function withdrawMoney(uint, address) external;
     function fund() public payable;
+    function dummy() external;
 }
