@@ -68,6 +68,7 @@ contract FlightSuretyData {
     {
         contractOwner = msg.sender;
         airlineMap[contractOwner] = Airline(contractOwner, true);
+        airlineCount++;
     }
 
     /********************************************************************************************/

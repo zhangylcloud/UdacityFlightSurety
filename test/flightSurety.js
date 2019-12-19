@@ -3,7 +3,14 @@ var Test = require('../config/testConfig.js');
 var BigNumber = require('bignumber.js');
 const truffleAssert = require('truffle-assertions');
 
+
 contract('Flight Surety Tests', async (accounts) => {
+    console.log(accounts[0]);
+    console.log(accounts[1]);
+    console.log(accounts[2]);
+    console.log(accounts[3]);
+    console.log(accounts[4]);
+    console.log(accounts[5]);
 
     var config;
     before('setup contract', async () => {
@@ -60,7 +67,7 @@ contract('Flight Surety Tests', async (accounts) => {
         let reverted = false;
         try 
         {
-            await config.flightSuretyData.registerAirline(accounts[2]);
+            await config.flightSuretyData.registerAirline(accounts[2], accounts[0]);
         }
         catch(e) {
             //console.log(e);
@@ -75,18 +82,14 @@ contract('Flight Surety Tests', async (accounts) => {
 
     it('(airline) cannot register an Airline using registerAirline() if it is not funded', async () => {
       
-        // ARRANGE
-        let newAirline = accounts[2];
-
         // ACT
         try {
-            await config.flightSuretyData.registerAirline(config.firstAirline, {from: config.owner});
-            await config.flightSuretyData.registerAirline(newAirline, {from: config.firstAirline});
+            await config.flightSuretyData.registerAirline(accounts[1], accounts[0], {from: accounts[0]});
+            await config.flightSuretyData.registerAirline(accounts[2], accounts[1], {from: accounts[1]});
         }
         catch(e) {
-
         }
-        let result = await config.flightSuretyData.isAirline.call(newAirline); 
+        let result = await config.flightSuretyData.isAirline.call(accounts[2]); 
 
         // ASSERT
         assert.equal(result, false, "Airline should not be able to register another airline if it hasn't provided funding");
@@ -95,20 +98,16 @@ contract('Flight Surety Tests', async (accounts) => {
 
     it('(airline) can register an Airline using registerAirline() if it is funded', async () => {
       
-        // ARRANGE
-        let newAirline = accounts[2];
-
         // ACT
         try {
-            await config.flightSuretyData.setAirlineActivateStatus(config.firstAirline, true, {from: config.owner});
-            let result = await config.flightSuretyData.getAirlineInfo.call(config.firstAirline); 
-            await config.flightSuretyData.registerAirline(newAirline, {from: config.firstAirline/*, nonce: await web3.eth.getTransactionCount(config.firstAirline)*/});
+            await config.flightSuretyData.setAirlineActivateStatus(accounts[1], true, {from: accounts[0]});
+            let result = await config.flightSuretyData.getAirlineInfo.call(accounts[1]); 
+            await config.flightSuretyData.registerAirline(accounts[2], accounts[1], {from: accounts[1]/*, nonce: await web3.eth.getTransactionCount(config.firstAirline)*/});
+            await config.flightSuretyData.setAirlineActivateStatus(accounts[2], true, {from: accounts[0]});
         }
         catch(e) {
-            console.log(e);
-
         }
-        let result = await config.flightSuretyData.isAirline.call(newAirline); 
+        let result = await config.flightSuretyData.isAirline.call(accounts[2]); 
 
         // ASSERT
         assert.equal(result, true, "Airline can register another airline if it is funded");
@@ -131,27 +130,52 @@ contract('Flight Surety Tests', async (accounts) => {
     it('(airline) can register an Airline from App contract', async () => {
       
         // ARRANGE
-        let newAirline = accounts[3];
-        console.log(newAirline);
-
 
         // ACT
         try {
-            let result1 = await config.flightSuretyApp.registerAirline(newAirline, {from: config.owner});
+            let result1 = await config.flightSuretyApp.registerAirline(accounts[3], {from: accounts[0]});
             //truffleAssert.eventEmitted(result1, 'testing', (ev) => {
             //    console.log(ev);
             //    return true;
             //});
-            await config.flightSuretyApp.activateAirline(newAirline, {from: config.owner, value: web3.utils.toWei("10", "ether")});
-            let result = await config.flightSuretyData.getAirlineInfo.call(newAirline); 
+            await config.flightSuretyApp.activateAirline(accounts[3], {from: accounts[0], value: web3.utils.toWei("10", "ether")});
+        }
+        catch(e) {
+        }
+        let result = await config.flightSuretyData.isAirline.call(accounts[3]); 
+
+        // ASSERT
+        assert.equal(result, true, "(airline) can register an Airline from App contract");
+    });
+
+    it('above threshold, airline can only be registered after vote', async () => {
+        let result1 = result4 = false;
+        let result2 = result3 = true;
+
+        try {
+            await config.flightSuretyApp.registerAirline(accounts[4], {from: accounts[0]});
+            result1 = await config.flightSuretyData.isAirline.call(accounts[4]); 
+            await config.flightSuretyApp.activateAirline(accounts[4], {from: accounts[0], value: web3.utils.toWei("10", "ether")});
+
+            await config.flightSuretyApp.registerAirline(accounts[5], {from: accounts[0]});
+            result2 = await config.flightSuretyData.isAirline.call(accounts[5]); 
+
+            await config.flightSuretyApp.registerAirline(accounts[5], {from: accounts[1]});
+            result3 = await config.flightSuretyData.isAirline.call(accounts[5]); 
+
+            await config.flightSuretyApp.registerAirline(accounts[5], {from: accounts[2]});
+            result4 = await config.flightSuretyData.isAirline.call(accounts[5]); 
+
+            await config.flightSuretyApp.activateAirline(accounts[5], {from: accounts[0], value: web3.utils.toWei("10", "ether")});
         }
         catch(e) {
             console.log(e);
         }
-        let result = await config.flightSuretyData.isAirline.call(newAirline); 
+        assert.equal(result1, true, "The fifth airline can be registered directly without vote");
+        assert.equal(result2, false, "The sixth airline should be registered via vote");
+        assert.equal(result3, false, "2/5 votes not enough");
+        assert.equal(result4, true, "3/5 votes should work, sixed airline registered");
 
-        // ASSERT
-        assert.equal(result, true, "(airline) can register an Airline from App contract");
     });
 
 });
