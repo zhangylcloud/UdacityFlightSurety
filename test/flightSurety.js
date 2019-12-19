@@ -148,6 +148,7 @@ contract('Flight Surety Tests', async (accounts) => {
         assert.equal(result, true, "(airline) can register an Airline from App contract");
     });
 
+
     it('above threshold, airline can only be registered after vote', async () => {
         let result1 = result4 = false;
         let result2 = result3 = true;
@@ -174,7 +175,7 @@ contract('Flight Surety Tests', async (accounts) => {
         assert.equal(result1, true, "The fifth airline can be registered directly without vote");
         assert.equal(result2, false, "The sixth airline should be registered via vote");
         assert.equal(result3, false, "2/5 votes not enough");
-        assert.equal(result4, true, "3/5 votes should work, sixed airline registered");
+        assert.equal(result4, true, "3/5 votes should work, sixth airline registered");
 
     });
 
