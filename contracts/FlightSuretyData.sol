@@ -143,10 +143,10 @@ contract FlightSuretyData {
     }
 
     // Caller must be airline and must be activated
-    modifier requireCallerActivated()
+    modifier requireActivatedAirline(address airlineAddress)
     {
-        require(airlineMap[msg.sender].airlineAddress > 0, "airline does not exist");
-        require(airlineMap[msg.sender].isActivated == true, "airline is not activated");
+        require(airlineMap[airlineAddress].airlineAddress > address(0), "airline does not exist");
+        require(airlineMap[airlineAddress].isActivated == true, "airline is not activated");
         _;
     }
 
@@ -205,10 +205,11 @@ contract FlightSuretyData {
     *      Can only be called from FlightSuretyApp contract
     *
     */   
-    function registerAirline(address airlineAddress)
+    function registerAirline(address airlineAddress,
+                             address callerAddress)
                              external
                              requireIsOperational()
-                             requireCallerActivated()
+                             requireActivatedAirline(callerAddress)
     {
         airlineMap[airlineAddress] = Airline(airlineAddress, false);
         airlineCount++;

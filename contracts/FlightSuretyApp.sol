@@ -147,14 +147,14 @@ contract FlightSuretyApp {
         voteMap[airlineAddress][msg.sender] == true;
         if(airlineCount < AIRLINE_COUNT_THRESHOLD){
             emit testing(5);
-            dataContract.registerAirline(airlineAddress);
+            dataContract.registerAirline(airlineAddress, msg.sender);
             emit testing(6);
         }
         else{
             emit testing(7);
             if(voteCountMap[airlineAddress].mul(2) >= airlineCount){
                 emit testing(8);
-                dataContract.registerAirline(airlineAddress);
+                dataContract.registerAirline(airlineAddress, msg.sender);
                 emit testing(9);
             }
         }
@@ -426,7 +426,7 @@ contract FlightSuretyData {
     function authorizeCaller(address) external;
     function isOperational() external view returns(bool);
     function getAirlineCount() public returns (uint);
-    function registerAirline(address) external;
+    function registerAirline(address, address) external;
     function setAirlineActivateStatus(address, bool) external;
     function getAirlineInfo(address) external view returns(address, bool);
     function isAirline(address) external view returns(bool);

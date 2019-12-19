@@ -115,50 +115,43 @@ contract('Flight Surety Tests', async (accounts) => {
 
     });
 
-    it('dummy test', async () => {
-      
-        try {
-            await config.flightSuretyApp.callDummy();
-        }
-        catch(e) {
-            console.log(e);
-
-        }
-        // ASSERT
-        assert.equal(true, true, "Dummy");
-    });
-
-    //it('(airline) can register an Airline from App contract', async () => {
+    //it('dummy test', async () => {
     //  
-    //    // ARRANGE
-    //    let newAirline = accounts[3];
-    //    console.log(newAirline);
-
-
-    //    // ACT
     //    try {
-    //        console.log('----------1');
-    //        let result1 = await config.flightSuretyApp.registerAirline(newAirline, {from: config.owner});
-    //        console.log(result1);
-    //        truffleAssert.eventEmitted(result1, 'testing', (ev) => {
-    //            console.log(ev);
-    //            return true;
-    //        });
-    //        console.log('----------2');
-    //        await config.flightSuretyApp.activateAirline(newAirline, true, {from: config.owner});
-    //        console.log('----------3');
-    //        let result = await config.flightSuretyData.getAirlineInfo.call(newAirline); 
-    //        console.log('----------4');
+    //        await config.flightSuretyApp.callDummy();
     //    }
     //    catch(e) {
     //        console.log(e);
 
     //    }
-    //    let result = await config.flightSuretyData.isAirline.call(newAirline); 
-
     //    // ASSERT
-    //    assert.equal(result, true, "(airline) can register an Airline from App contract");
-
+    //    assert.equal(true, true, "Dummy");
     //});
+
+    it('(airline) can register an Airline from App contract', async () => {
+      
+        // ARRANGE
+        let newAirline = accounts[3];
+        console.log(newAirline);
+
+
+        // ACT
+        try {
+            let result1 = await config.flightSuretyApp.registerAirline(newAirline, {from: config.owner});
+            //truffleAssert.eventEmitted(result1, 'testing', (ev) => {
+            //    console.log(ev);
+            //    return true;
+            //});
+            await config.flightSuretyApp.activateAirline(newAirline, {from: config.owner, value: web3.utils.toWei("10", "ether")});
+            let result = await config.flightSuretyData.getAirlineInfo.call(newAirline); 
+        }
+        catch(e) {
+            console.log(e);
+        }
+        let result = await config.flightSuretyData.isAirline.call(newAirline); 
+
+        // ASSERT
+        assert.equal(result, true, "(airline) can register an Airline from App contract");
+    });
 
 });
