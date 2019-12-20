@@ -179,4 +179,45 @@ contract('Flight Surety Tests', async (accounts) => {
 
     });
 
+    it('Can add passenger', async () => {
+      
+        try {
+            await config.flightSuretyApp.addPassenger(accounts[8], {from: accounts[0]});
+        }
+        catch(e) {
+        }
+        let result = await config.flightSuretyData.isPassenger.call(accounts[8]); 
+
+        // ASSERT
+        assert.equal(result, true, "Can add passenger");
+    });
+
+    it('Airline can add flight', async () => {
+        try {
+            await config.flightSuretyApp.registerFlight(1, 0, Date.now(), {from: accounts[1]});
+        }
+        catch(e) {
+        }
+        let result = await config.flightSuretyData.getFlightInfo.call(accounts[1], 1); 
+
+        // ASSERT
+        assert.equal(result[0], 1, "Airline can add flight");
+    });
+
+    it('Passenger can buy insurance', async () => {
+        try {
+            await config.flightSuretyApp.buyInsurance(accounts[1], 1, accounts[8], {from: accounts[8], value: web3.utils.toWei("0.5", "ether")});
+        }
+        catch(e) {
+            console.log(e);
+        }
+        let result = await config.flightSuretyData.getInsurance.call(accounts[1], 1, accounts[8]); 
+
+        // ASSERT
+        assert.equal(result[1], 1, "Passenger can buy insurance");
+        assert.equal(result[5], web3.utils.toWei("0.5", "ether"), "Passenger can buy insurance");
+    });
+
+
+
 });

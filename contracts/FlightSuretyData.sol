@@ -18,7 +18,6 @@ contract FlightSuretyData {
 
     struct Passenger {
         address passengerAddress;
-        uint passengerId;
         uint creditedAmount;
     }
 
@@ -328,25 +327,32 @@ contract FlightSuretyData {
                insurance.insuredAmount);
     }
 
-    function addPassenger(address passengerAddress,
-                          uint passengerId)
+    function addPassenger(address passengerAddress)
                           requireIsOperational()
                           external
     {
         require(passengerMap[passengerAddress].passengerAddress == address(0), "Passenger already exists");
-        passengerMap[passengerAddress] = Passenger(passengerAddress, passengerId, 0);
+        passengerMap[passengerAddress] = Passenger(passengerAddress, 0);
     }
 
     function getPassenger(address passengerAddress)
                          external
                          view
                          requirePassengerExist(passengerAddress)
-                         returns(address, uint, uint)
+                         returns(address, uint)
     {
         return(passengerMap[passengerAddress].passengerAddress, 
-               passengerMap[passengerAddress].passengerId, 
                passengerMap[passengerAddress].creditedAmount);
     }
+
+    function isPassenger(address passengerAddress)
+                         external
+                         view
+                         returns(bool)
+    {
+        return passengerMap[passengerAddress].passengerAddress != address(0);
+    }
+
 
 
     /**

@@ -242,6 +242,13 @@ contract FlightSuretyApp {
         emit OracleRequest(index, airlineAddress, flightId);
     } 
 
+    function addPassenger(address passengerAddress)
+                          external
+    {
+        require(!dataContract.isPassenger(passengerAddress), "Passenger already exist");
+        dataContract.addPassenger(passengerAddress);
+    }
+
 
 // region ORACLE MANAGEMENT
     // Incremented to add pseudo-randomness at various points
@@ -435,8 +442,9 @@ contract FlightSuretyData {
     function setFlightStatusCode(address, uint, uint) external;
     function updateFlightTimestamp(address, uint, uint256) external;
     function addInsurance(address, uint, address, uint) external;
-    function addPassenger(address, uint) external;
-    function getPassenger(address) external view returns(address, uint, uint);
+    function addPassenger(address) external;
+    function getPassenger(address) external view returns(address, uint);
+    function isPassenger(address) external view returns(bool);
     //function creditInsurees(address, uint, address, uint) external;
     function creditAllInsurees(address, uint, uint, uint) external;
     function withdrawMoney(uint, address) external;
