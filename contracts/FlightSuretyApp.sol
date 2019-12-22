@@ -419,11 +419,11 @@ contract FlightSuretyApp {
     }
 
 
-    function callDummy() external
-    {
-        emit testing(10);
-        dataContract.dummy();
-    }
+    //function callDummy() external
+    //{
+    //    emit testing(10);
+    //    dataContract.dummy();
+    //}
 
 // endregion
 
@@ -449,5 +449,5 @@ contract FlightSuretyData {
     function creditAllInsurees(address, uint, uint, uint) external;
     function withdrawMoney(uint, address) external;
     function fund() public payable;
-    function dummy() external;
+    //function dummy() external;
 }
