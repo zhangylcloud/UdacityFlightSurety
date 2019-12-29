@@ -1,4 +1,4 @@
-
+const truffleAssert = require('truffle-assertions');
 var Test = require('../config/testConfig.js');
 //var BigNumber = require('bignumber.js');
 
@@ -44,6 +44,11 @@ contract('Oracles', async (accounts) => {
 
         // Submit a request for oracles to get status information for a flight
         await config.flightSuretyApp.fetchFlightStatus(config.firstAirline, flight);
+        //console.log("submitted fetchFlightStatus");
+        //truffleAssert.eventEmitted(result1, 'OracleRequest', (ev) => {
+        //    console.log(ev);
+        //    return true;
+        //});
         // ACT
 
         // Since the Index assigned to each test account is opaque by design

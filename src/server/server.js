@@ -8,12 +8,16 @@ let config = Config['localhost'];
 let web3 = new Web3(new Web3.providers.WebsocketProvider(config.url.replace('http', 'ws')));
 web3.eth.defaultAccount = web3.eth.accounts[0];
 let flightSuretyApp = new web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
-
-
+console.log("-----flightSuretyApp is "); 
+console.log(flightSuretyApp); 
 flightSuretyApp.events.OracleRequest({
     fromBlock: 0
   }, function (error, event) {
-    if (error) console.log(error)
+    if (error) {
+      console.log("///////////////");
+      console.log(error)
+    }
+    console.log("----------------")
     console.log(event)
 });
 
