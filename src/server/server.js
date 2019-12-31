@@ -12,16 +12,51 @@ let flightSuretyApp = new web3.eth.Contract(FlightSuretyApp.abi, config.appAddre
 //console.log(flightSuretyApp); 
 //console.log("----------------config.address is ");
 //console.log(config.appAddress);
-flightSuretyApp.events.OracleRequest({
-    fromBlock: 0
-  }, function (error, event) {
-    if (error) {
-      console.log("///////////////");
-      console.log(error)
+let oracleSim
+try{
+    oracleSim = new oracleSim(20,
+                              [0, 10, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 30, 40, 50, 50],
+                              flightSuretyApp,
+                              web3);
+}
+catch(e){
+    console.log(e);
+}
+
+
+flightSuretyApp.events.OracleRequest(
+    {
+        fromBlock: 0
+    }, 
+    function (error, event) {
+        if (error) {
+            console.log(error);
+            return;
+        }
+        let airlineAddress = event.returnValues.airlineAddress;
+        let flightId = event.returnValues.flightId;
+        let index = event.returnValues.index;
+        console.log(index);//???????????????check type
+        try{
+            let flightStatuses = oracleSim.getFlightStatuses(indexes, airlineAddress, flightId);
+        }
+        catch(e){
+            console.log(e);
+        }
+        for(let i = 0; i < flightStatuses.length; ++i){
+            try{
+                flightSuretyApp.submitOracleResponse(index, 
+                                                     airlineAddress,
+                                                     flightId,
+                                                     0,
+                                                     flightStatuses[i].statusCode); //???????????Need timestamp support
+            }
+            catch(e){
+                console.log(e);
+            }
+        }
     }
-    console.log("----------------")
-    console.log(event)
-});
+);
 
 const app = express();
 app.get('/api', (req, res) => {

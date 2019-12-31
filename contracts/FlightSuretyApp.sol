@@ -344,7 +344,7 @@ contract FlightSuretyApp {
     {
         require((oracles[msg.sender].indexes[0] == index) || (oracles[msg.sender].indexes[1] == index) || (oracles[msg.sender].indexes[2] == index), "Index does not match oracle request");
         bytes32 key = keccak256(abi.encodePacked(index, airlineAddress, flightId)); 
-        require(oracleResponses[key].isOpen, "Flight or timestamp do not match oracle request");
+        require(oracleResponses[key].isOpen, "Flight do not match oracle request");
 
         oracleResponses[key].responses[statusCode].push(msg.sender);
 
