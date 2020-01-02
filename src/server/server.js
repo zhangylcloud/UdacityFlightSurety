@@ -2,61 +2,74 @@ import FlightSuretyApp from '../../build/contracts/FlightSuretyApp.json';
 import Config from './config.json';
 import Web3 from 'web3';
 import express from 'express';
-
+const OracleSim = require('./oracleSim');
+const TruffleContract = require("truffle-contract");
+const fs = require("fs");
 
 let config = Config['localhost'];
-let web3 = new Web3(new Web3.providers.WebsocketProvider(config.url.replace('http', 'ws')));
+let web3provider = new Web3.providers.WebsocketProvider(config.url.replace('http', 'ws'));
+let web3 = new Web3(web3provider);
 web3.eth.defaultAccount = web3.eth.accounts[0];
-let flightSuretyApp = new web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
-//console.log("-----flightSuretyApp is "); 
-//console.log(flightSuretyApp); 
-//console.log("----------------config.address is ");
-//console.log(config.appAddress);
-let oracleSim
-try{
-    oracleSim = new oracleSim(20,
-                              [0, 10, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 30, 40, 50, 50],
-                              flightSuretyApp,
-                              web3);
-}
-catch(e){
-    console.log(e);
-}
+//let FlightSuretyAppABI = JSON.parse(fs.readFileSync('../../build/contracts/FlightSuretyApp.json'));
+let flightSuretyApp = TruffleContract(FlightSuretyApp);
+flightSuretyApp.setProvider(web3provider);
+let flightSuretyAppInstance;
+var oracleSim;
+
+async function startServer()
+{
+    flightSuretyAppInstance = await flightSuretyApp.at(config.appAddress);
+    await initializeOracles();
 
 
-flightSuretyApp.events.OracleRequest(
-    {
-        fromBlock: 0
-    }, 
-    function (error, event) {
-        if (error) {
-            console.log(error);
-            return;
-        }
+    flightSuretyAppInstance.OracleRequest().on("data", async event =>{
+        //console.log(event);
+        console.log("-----------------4");
+        
         let airlineAddress = event.returnValues.airlineAddress;
         let flightId = event.returnValues.flightId;
-        let index = event.returnValues.index;
-        console.log(index);//???????????????check type
+        let index = parseInt(event.returnValues.index, 10);
+        let flightStatuses;
         try{
-            let flightStatuses = oracleSim.getFlightStatuses(indexes, airlineAddress, flightId);
+            console.log("-----------------5");
+            flightStatuses = await oracleSim.getFlightStatuses(index, airlineAddress, flightId);
+            console.log(flightStatuses);
         }
         catch(e){
             console.log(e);
         }
         for(let i = 0; i < flightStatuses.length; ++i){
             try{
-                flightSuretyApp.submitOracleResponse(index, 
-                                                     airlineAddress,
-                                                     flightId,
-                                                     0,
-                                                     flightStatuses[i].statusCode); //???????????Need timestamp support
+                await flightSuretyAppInstance.submitOracleResponse(index, 
+                                                                   airlineAddress,
+                                                                   flightId,
+                                                                   0,
+                                                                   flightStatuses[i].statusCode,
+                                                                   {from: flightStatuses[i].oracleAddress}); //???????????Need timestamp support
             }
             catch(e){
                 console.log(e);
             }
         }
+    });
+       
+}
+startServer();
+
+async function initializeOracles()
+{
+    try{
+        oracleSim = new OracleSim(20,
+                                  [0, 10, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 30, 40, 50, 50],
+                                  flightSuretyAppInstance,
+                                  web3);
+        await oracleSim.registerOracles();
     }
-);
+    catch(e){
+        console.log(e);
+    }
+}
+
 
 const app = express();
 app.get('/api', (req, res) => {
