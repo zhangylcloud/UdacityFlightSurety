@@ -61,6 +61,7 @@ module.exports = class OracleSim {
         }
         return statuses;
     }
+    
 }
 
 class Oracle {

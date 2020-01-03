@@ -43,7 +43,6 @@ async function startServer()
                 await flightSuretyAppInstance.submitOracleResponse(index, 
                                                                    airlineAddress,
                                                                    flightId,
-                                                                   0,
                                                                    flightStatuses[i].statusCode,
                                                                    {from: flightStatuses[i].oracleAddress}); //???????????Need timestamp support
             }

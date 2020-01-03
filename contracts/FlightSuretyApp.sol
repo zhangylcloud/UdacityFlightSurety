@@ -213,13 +213,13 @@ contract FlightSuretyApp {
     */  
     function processFlightStatus(address airlineAddress, 
                                  uint flightId, 
-                                 uint256 timestamp, 
+                                 //uint256 timestamp, 
                                  uint8 statusCode)                                
                                  requireIsOperational()
                                  internal
     {
         dataContract.setFlightStatusCode(airlineAddress, flightId, statusCode);
-        dataContract.updateFlightTimestamp(airlineAddress, flightId, timestamp);
+        //dataContract.updateFlightTimestamp(airlineAddress, flightId, timestamp);
         if(statusCode == STATUS_CODE_LATE_AIRLINE){
             dataContract.creditAllInsurees(airlineAddress, flightId, INSURANCE_MULTIPLE_NUMERATOR, INSURANCE_MULTIPLE_DENOMINATOR);
         }
@@ -285,7 +285,7 @@ contract FlightSuretyApp {
     // Event fired each time an oracle submits a response
     event FlightStatusInfo(address airline, uint flightId, uint8 status);
 
-    event OracleReport(address airline, uint flightId, uint256 timestamp, uint8 status);
+    event OracleReport(address airline, uint flightId, /*uint256 timestamp,*/ uint8 status);
 
     // Event fired when flight status request is submitted
     // Oracles track this and if they have a matching index
@@ -337,7 +337,7 @@ contract FlightSuretyApp {
                             uint8 index,
                             address airlineAddress,
                             uint flightId,
-                            uint256 timestamp,
+                            //uint256 timestamp,
                             uint8 statusCode
                         )
                         external
@@ -350,13 +350,13 @@ contract FlightSuretyApp {
 
         // Information isn't considered verified until at least MIN_RESPONSES
         // oracles respond with the *** same *** information
-        emit OracleReport(airlineAddress, flightId, timestamp, statusCode);
+        emit OracleReport(airlineAddress, flightId, /*timestamp,*/ statusCode);
         if (oracleResponses[key].responses[statusCode].length >= MIN_RESPONSES) {
 
             emit FlightStatusInfo(airlineAddress, flightId, statusCode);
 
             // Handle flight status as appropriate
-            processFlightStatus(airlineAddress, flightId, timestamp, statusCode);
+            processFlightStatus(airlineAddress, flightId, /*timestamp,*/ statusCode);
         }
     }
 
