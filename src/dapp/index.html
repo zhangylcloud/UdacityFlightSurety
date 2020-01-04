@@ -24,14 +24,50 @@
         <a class="navbar-brand" href="#" id="status-tab-switch">Status</a>
     </nav>
 
-    <main class="container">
+    <!--Airline section-->
+    <div class="container" id="airline-section" style="display: none">
+        <input type="text" class="form-control" id="airline-address" placeholder="Airline address to be registered">
+        <br>
+        <input type="text" class="form-control" id="airline-register-address" placeholder="Airline register's address. It will pay ether to register airline">
+        <br>
+        <input type="button" class="btn btn-primary" id="airline-register-btn" value="Register Airline">
+        <br>
+    </div>
 
-        <div id="display-wrapper" class="top-20">
+    <!--Flight section-->
+    <div class="container" id="flight-section" style="display: none">
+        <input type="text" class="form-control" id="airline-address-flight" placeholder="Airline address of the flight to register">
+        <br>
+        <input type="text" class="form-control" id="flight-id" placeholder="Flight ID to register">
+        <br>
+        <input type="button" class="btn btn-primary" id="flight-register-btn" value="Register Flight">
+        <br>
+    </div>
+
+    <!--Pasenger section-->
+    <div class="container" id="passenger-section" style="display: none">
+        <input type="text" class="form-control" id="passenger-address" placeholder="Passenger address to register">
+        <br>
+    </div>
+
+    <!--Insurance section-->
+    <div class="container" id="insurance-section" style="display: none">
+        <input type="text" class="form-control" id="airline-address-insurance" placeholder="Airline address of the insurance you want to buy">
+        <br>
+        <input type="text" class="form-control" id="flight-id-insurance" placeholder="Flight Id of the insurance you want to buy">
+        <br>
+        <input type="text" class="form-control" id="passenger-address" placeholder="Passenger address to buy insurance">
+        <br>
+    </div>
+
+    <!--Status section-->
+    <div class="container" id="status-section" style="display: none">
+       <div id="display-wrapper" class="top-20">
         </div>
         <div class="row top-20">
             <label class="form">Flight</label> <input type="text" id="flight-number"> <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
         </div>
-    </main>
+    </div>
 
 </body>
 
