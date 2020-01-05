@@ -249,6 +249,13 @@ contract FlightSuretyApp {
         dataContract.addPassenger(passengerAddress);
     }
 
+    function withdrawMoney(address passengerAddress, uint amount)
+                           external
+    {
+        require(!dataContract.isPassenger(passengerAddress), "Passenger already exist");
+        dataContract.withdrawMoney(amount, passengerAddress);
+    }
+
 
 // region ORACLE MANAGEMENT
     // Incremented to add pseudo-randomness at various points

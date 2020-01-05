@@ -58,26 +58,27 @@ import './flightsurety.css';
         // Read transaction
         contract.isOperational((error, result) => {
             console.log(error,result);
-            display('Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
+            display('status', 'Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
         });
 
         // User-submitted transaction
         DOM.elid('submit-oracle').addEventListener('click', () => {
+            let airline = DOM.elid('airline-address-status').value;
             let flight = DOM.elid('flight-number').value;
             // Write transaction
-            contract.fetchFlightStatus(flight, (error, result) => {
-                display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
+            contract.fetchFlightStatus(airline, flight, (error, result) => {
+                display('status', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
             });
         })
-    
     });
     
 
 })();
 
 
-function display(title, description, results) {
-    let displayDiv = DOM.elid("display-wrapper");
+function display(displaySurfix, title, description, results) {
+    let displayDiv = DOM.elid("display-wrapper-" + displaySurfix);
+    console.log("display-wrapper-" + displaySurfix);
     let section = DOM.section();
     section.appendChild(DOM.h2(title));
     section.appendChild(DOM.h5(description));

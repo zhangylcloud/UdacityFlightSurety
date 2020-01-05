@@ -26,12 +26,14 @@
 
     <!--Airline section-->
     <div class="container" id="airline-section" style="display: none">
-        <input type="text" class="form-control" id="airline-address" placeholder="Airline address to be registered">
+        <input type="text" class="form-control" id="airline-address" placeholder="Airline address to be registered/activated">
         <br>
-        <input type="text" class="form-control" id="airline-register-address" placeholder="Airline register's address. It will pay ether to register airline">
+        <input type="text" class="form-control" id="airline-register-address" placeholder="Caller's address. If for activation, 10 ethers will be paid">
         <br>
         <input type="button" class="btn btn-primary" id="airline-register-btn" value="Register Airline">
+        <input type="button" class="btn btn-primary" id="airline-activation-btn" value="Activate Airline">
         <br>
+        <div id="display-wrapper-airline" class="top-20"></div>
     </div>
 
     <!--Flight section-->
@@ -42,6 +44,7 @@
         <br>
         <input type="button" class="btn btn-primary" id="flight-register-btn" value="Register Flight">
         <br>
+        <div id="display-wrapper-flight" class="top-20"></div>
     </div>
 
     <!--Pasenger section-->
@@ -50,6 +53,7 @@
         <br>
         <input type="button" class="btn btn-primary" id="passenger-register-btn" value="Register Passenger">
         <br>
+        <div id="display-wrapper-passenger" class="top-20"></div>
     </div>
 
     <!--Insurance section-->
@@ -62,15 +66,18 @@
         <br>
         <input type="button" class="btn btn-primary" id="insurance-register-btn" value="Register Insurance">
         <br>
+        <div id="display-wrapper-insurance" class="top-20"></div>
     </div>
 
     <!--Status section-->
     <div class="container" id="status-section" style="display: none">
-       <div id="display-wrapper" class="top-20">
-        </div>
-        <div class="row top-20">
-            <label class="form">Flight</label> <input type="text" id="flight-number"> <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
-        </div>
+        <input type="text" class="form-control" id="airline-address-status" placeholder="Airline address for status fetch"> 
+        <br>
+        <input type="text" class="form-control" id="flight-number" placeholder="Flight Id for status fetch"> 
+        <br>
+        <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
+        <br>
+        <div id="display-wrapper-status" class="top-20"></div>
     </div>
 
 </body>
