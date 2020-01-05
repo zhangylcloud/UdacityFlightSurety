@@ -174,6 +174,14 @@ contract FlightSuretyApp {
         msg.sender.transfer(msg.value - AIRLINE_ACTIVATION_FEE);
     }
 
+    function getAirlineInfo(address airlineAddress)
+                            external
+                            view
+                            returns(address, bool)
+    {
+        return dataContract.getAirlineInfo(airlineAddress);
+    }
+                        
 
    /**
     * @dev Register a future flight for insuring.
@@ -192,6 +200,14 @@ contract FlightSuretyApp {
                                timestamp);
     }
 
+    function getFlightInfo(address airlineAddress,
+                           uint flightId)
+                           external
+                           view
+                           returns(uint, address, uint)
+    {
+        return dataContract.getFlightInfo(airlineAddress, flightId);
+    }
 
     function buyInsurance(address airlineAddress,
                           uint flightId,
@@ -205,6 +221,17 @@ contract FlightSuretyApp {
         dataContract.addInsurance(airlineAddress, flightId, passengerAddress, msg.value);
     }
                           
+    function getInsurance(address airlineAddress,
+                          uint flightId,
+                          address passengerAddress)
+                          external
+                          view
+                          returns(address, uint, address, bool, bool, uint)
+    {
+        return dataContract.getInsurance(airlineAddress,
+                                         flightId,
+                                         passegnerAddress);
+    }
 
     
    /**
@@ -247,6 +274,14 @@ contract FlightSuretyApp {
     {
         require(!dataContract.isPassenger(passengerAddress), "Passenger already exist");
         dataContract.addPassenger(passengerAddress);
+    }
+
+    function getPassenger(address passengerAddress)
+                          external
+                          view
+                          returns(address, uint)
+    {
+        return dataContract.getPassenger(passengerAddress);
     }
 
     function withdrawMoney(address passengerAddress, uint amount)
