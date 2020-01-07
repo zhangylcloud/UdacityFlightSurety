@@ -2,7 +2,7 @@
 import DOM from './dom';
 import Contract from './contract';
 import './flightsurety.css';
-
+const truffleAssert = require('truffle-assertions');
 
 (async() => {
 
@@ -70,6 +70,90 @@ import './flightsurety.css';
                 display('status', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
             });
         })
+
+        // Register Airlines
+        DOM.elid('airline-register-btn').addEventListener('click', () => {
+            let airlineAddress = DOM.elid('airline-address').value;
+            let fromAddress = DOM.elid('airline-register-address').value;
+            console.log("----------1");
+            // Write transaction
+            contract.registerAirline(airlineAddress, fromAddress, (error, result) => {
+                //console.log(error);
+                //console.log(result);
+                console.log("----------2");
+                contract.getAirlineInfo(airlineAddress, (error, result) => {
+                    console.log("----------3");
+                    //console.log(error);
+                    //console.log(result);
+                });
+                //display('airline', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
+            });
+        })
+
+        // Activate Airlines
+        DOM.elid('airline-activation-btn').addEventListener('click', () => {
+            let airlineAddress = DOM.elid('airline-address').value;
+            let fromAddress = DOM.elid('airline-register-address').value;
+            // Write transaction
+            contract.activateAirline(airlineAddress, fromAddress, (error, result) => {
+                contract.getAirlineInfo(airlineAddress, (result) => {
+                    console.log(result);
+                });
+                //display('airline', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
+            });
+        })
+
+        // Add Flight 
+        DOM.elid('flight-register-btn').addEventListener('click', () => {
+            let airlineAddress = DOM.elid('airline-address-flight').value;
+            let flightId = DOM.elid('flight-id').value;
+            // Write transaction
+            contract.registerFlight(airlineAddress, flightId, (error, result) => {
+                contract.getFlightInfo(airlineAddress, flightId, (result) => {
+                    console.log(result);
+                });
+                //display('airline', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
+            });
+        })
+
+        // Add Passenger 
+        DOM.elid('passenger-register-btn').addEventListener('click', () => {
+            let passengerAddress = DOM.elid('passenger-address').value;
+            // Write transaction
+            contract.addPassenger(passengerAddress, passengerAddress, (error, result) => {
+                contract.getPassengerInfo(passengerAddress, (result) => {
+                    console.log(result);
+                });
+                //display('airline', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
+            });
+        })
+
+        // Buy insurance 
+        DOM.elid('insurance-register-btn').addEventListener('click', () => {
+            let airlineAddress = DOM.elid('airline-address-insurance').value;
+            let flightId = DOM.elid('flight-id-insurance').value;
+            let passengerAddress = DOM.elid('passenger-address-insurance').value;
+            let amount = DOM.elid('amount-insurance').value;
+            // Write transaction
+            contract.buyInsurance(airlineAddress, flightId, passengerAddress, amount, (error, result) => {
+                contract.getInsurance(airlineAddress, flightId, passengerAddress, (result) => {
+                    console.log(result);
+                });
+                //display('airline', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
+            });
+        })
+
+        // withdraw money 
+        DOM.elid('withdraw-btn').addEventListener('click', () => {
+            let passengerAddress = DOM.elid('passenger-address-insurance').value;
+            let amount = DOM.elid('amount-insurance').value;
+            // Write transaction
+            contract.withdrawMoney(passengerAddress, amount, (error, result) => {
+                console.log(result);
+                //display('airline', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
+            });
+        })
+
     });
     
 

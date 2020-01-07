@@ -113,7 +113,8 @@ contract('Flight Surety Tests', async (accounts) => {
         assert.equal(result, true, "Airline can register another airline if it is funded");
 
     });
-
+//
+//
     //it('dummy test', async () => {
     //  
     //    try {

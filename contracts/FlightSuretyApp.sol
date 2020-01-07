@@ -131,11 +131,11 @@ contract FlightSuretyApp {
     function registerAirline(address airlineAddress)
                              external
                              requireIsOperational()
-                             requireCallerActivatedAirline()
-                             returns(bool success, uint256 votes)
+                             //requireCallerActivatedAirline()
+                             //returns(bool success, uint256 votes)
     {
         emit testing(1);
-        require(!dataContract.isAirline(airlineAddress), "Airline already exist");
+        //require(!dataContract.isAirline(airlineAddress), "Airline already exist");
         require(voteMap[airlineAddress][msg.sender] == false, "You have already voted");
         emit testing(2);
         voteMap[airlineAddress][msg.sender] == true;
@@ -159,7 +159,7 @@ contract FlightSuretyApp {
             }
         }
         emit testing(10);
-        return (success, 0);
+        //return (success, 0);
     }
 
     function activateAirline(address airlineAddress)
@@ -230,7 +230,7 @@ contract FlightSuretyApp {
     {
         return dataContract.getInsurance(airlineAddress,
                                          flightId,
-                                         passegnerAddress);
+                                         passengerAddress);
     }
 
     
@@ -484,6 +484,7 @@ contract FlightSuretyData {
     function setFlightStatusCode(address, uint, uint) external;
     function updateFlightTimestamp(address, uint, uint256) external;
     function addInsurance(address, uint, address, uint) external;
+    function getInsurance(address, uint, address) external view returns(address, uint, address, bool, bool, uint);
     function addPassenger(address) external;
     function getPassenger(address) external view returns(address, uint);
     function isPassenger(address) external view returns(bool);

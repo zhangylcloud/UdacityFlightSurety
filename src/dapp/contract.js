@@ -59,10 +59,14 @@ export default class Contract {
             airlineAddress: airlineAddress,
             fromAddress: fromAddress
         } 
+        console.log("----------Airline address is " + airlineAddress);
+        console.log("----------From address is " + fromAddress);
         self.flightSuretyApp.methods
             .registerAirline(payload.airlineAddress)
             .send({ from: payload.fromAddress}, (error, result) => {
-                callback(error, payload);
+                console.log(error);
+                console.log(result);
+                callback(error, result);
             });
     }
 
@@ -167,7 +171,7 @@ export default class Contract {
  
     }
 
-    withDrawMoney(passengerAddress, amount, callback){
+    withdrawMoney(passengerAddress, amount, callback){
         let self = this;
         let payload = {
             passengerAddress: passengerAddress,
