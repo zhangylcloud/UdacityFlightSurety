@@ -195,14 +195,14 @@ contract('Flight Surety Tests', async (accounts) => {
 
     it('Airline can add flight', async () => {
         try {
-            await config.flightSuretyApp.registerFlight(1, 0, Date.now(), {from: accounts[1]});
+            await config.flightSuretyApp.registerFlight(3, 0, Date.now(), {from: accounts[1]});
         }
         catch(e) {
         }
         let result = await config.flightSuretyData.getFlightInfo.call(accounts[1], 1); 
 
         // ASSERT
-        assert.equal(result[0], 1, "Airline can add flight");
+        assert.equal(result[0], 3, "Airline can add flight");
     });
 
     it('Passenger can buy insurance', async () => {

@@ -418,8 +418,8 @@ contract FlightSuretyData {
     }
 
 
-    //function dummy() external
-    //{}
+    function dummy() external
+    {}
 
     //function getFlightKey
     //                    (

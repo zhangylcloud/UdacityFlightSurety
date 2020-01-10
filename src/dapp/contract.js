@@ -78,7 +78,7 @@ export default class Contract {
         } 
         self.flightSuretyApp.methods
             .activateAirline(payload.airlineAddress)
-            .send({ from: payload.fromAddress, value: web3.utils.toWei("10", "ether")}, (error, result) => {
+            .send({ from: payload.fromAddress, value: this.web3.utils.toWei("10", "ether")}, (error, result) => {
                 callback(error, payload);
             });
     }
@@ -98,13 +98,14 @@ export default class Contract {
         let timestamp = Date.now();
         let payload = {
             airlineAddress: airlineAddress,
-            flightId: flightId,
+            flightId: parseInt(flightId),
             timestamp: timestamp
         } 
+        console.log(payload);
         self.flightSuretyApp.methods
-            .registerFlight(flightId, 10, timestamp)
+            .registerFlight(payload.flightId, 10, payload.timestamp)
             .send({ from: payload.airlineAddress}, (error, result) => {
-                callback(error, payload);
+                callback(error, result);
             });
     }
 
@@ -112,7 +113,7 @@ export default class Contract {
         let self = this;
         let payload = {
             airlineAddress: airlineAddress,
-            flightId: flightId,
+            flightId: parseInt(flightId),
         } 
         self.flightSuretyApp.methods
             .getFlightInfo(payload.airlineAddress, payload.flightId)
@@ -128,7 +129,7 @@ export default class Contract {
         self.flightSuretyApp.methods
             .addPassenger(passengerAddress)
             .send({ from: fromAddress}, (error, result) => {
-                callback(error, payload);
+                callback(error, result);
             });
     }
 
@@ -153,8 +154,8 @@ export default class Contract {
         } 
         self.flightSuretyApp.methods
             .buyInsurance(airlineAddress, flightId, passengerAddress)
-            .send({ from: fromAddress, value: web3.utils.toWei(amount.toString(), "ether")}, (error, result) => {
-                callback(error, payload);
+            .send({ from: fromAddress, value: this.web3.utils.toWei(amount.toString(), "ether")}, (error, result) => {
+                callback(error, result);
             });
     }
 
@@ -180,8 +181,16 @@ export default class Contract {
         self.flightSuretyApp.methods
             .withDrawMoney(passengerAddress, amount)
             .send({ from: passengerAddress}, (error, result) => {
-                callback(error, payload);
+                callback(error, result);
             });
     }
 
+    callDummy(callback){
+        let self = this;
+        self.flightSuretyApp.methods
+            .callDummy()
+            .send({ from: self.owner}, (error, result) => {
+                callback(error, result);
+            });
+    }
 }
