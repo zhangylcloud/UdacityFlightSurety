@@ -403,7 +403,7 @@ contract FlightSuretyData {
                  requirePassengerExist(receiverAddress)
                  external
     {
-        require(passengerMap[receiverAddress].creditedAmount >= amount);
+        require(passengerMap[receiverAddress].creditedAmount >= amount, "Balance not enough");
         passengerMap[receiverAddress].creditedAmount.sub(amount);
         receiverAddress.transfer(amount);
     }

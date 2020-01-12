@@ -285,7 +285,7 @@ contract FlightSuretyApp {
     function withdrawMoney(address passengerAddress, uint amount)
                            external
     {
-        require(!dataContract.isPassenger(passengerAddress), "Passenger already exist");
+        require(dataContract.isPassenger(passengerAddress), "Passenger doesn't exist");
         dataContract.withdrawMoney(amount, passengerAddress);
     }
 

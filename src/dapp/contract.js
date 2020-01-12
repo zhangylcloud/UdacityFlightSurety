@@ -58,32 +58,13 @@ export default class Contract {
     //}
 
     async registerAirline(airlineAddress, fromAddress) {
-        let self = this;
-        //let payload = {
-        //    airlineAddress: airlineAddress,
-        //    fromAddress: fromAddress
-        //} 
         let instance = await this.flightSuretyApp.at(this.config.appAddress);
-        console.log("----------Airline address is " + airlineAddress);
-        console.log("----------From address is " + fromAddress);
         return await instance.registerAirline(airlineAddress, {from: fromAddress});
-        //self.flightSuretyApp.methods
-        //    .registerAirline(payload.airlineAddress)
-        //    .send({ from: payload.fromAddress}, (error, result) => {
-        //        console.log(error);
-        //        console.log(result);
-        //        callback(error, result);
-        //    });
     }
 
     async activateAirline(airlineAddress, fromAddress) {
         let instance = await this.flightSuretyApp.at(this.config.appAddress);
         return await instance.activateAirline(airlineAddress, {from: fromAddress, value: this.web3.utils.toWei("10", "ether")});
-        //self.flightSuretyApp.methods
-        //    .activateAirline(payload.airlineAddress)
-        //    .send({ from: payload.fromAddress, value: this.web3.utils.toWei("10", "ether")}, (error, result) => {
-        //        callback(error, payload);
-        //    });
     }
 
     async getAirlineInfo(airlineAddress) {
@@ -91,97 +72,53 @@ export default class Contract {
         return await instance.getAirlineInfo(airlineAddress, {from: airlineAddress});
     }
 
-    //registerFlight(airlineAddress, flightId, callback) {
-    //    let self = this;
-    //    let timestamp = Date.now();
-    //    let payload = {
-    //        airlineAddress: airlineAddress,
-    //        flightId: parseInt(flightId),
-    //        timestamp: timestamp
-    //    } 
-    //    console.log(payload);
-    //    self.flightSuretyApp.methods
-    //        .registerFlight(payload.flightId, 10, payload.timestamp)
-    //        .send({ from: payload.airlineAddress}, (error, result) => {
-    //            callback(error, result);
-    //        });
-    //}
+    async registerFlight(airlineAddress, flightId) {
+        let timestamp = Date.now();
+        let instance = await this.flightSuretyApp.at(this.config.appAddress);
+        return await instance.registerFlight(flightId, 
+                                             10, 
+                                             timestamp,
+                                             {from: airlineAddress});
+    }
 
-    //getFlightInfo(airlineAddress, flightId, callback) {
-    //    let self = this;
-    //    let payload = {
-    //        airlineAddress: airlineAddress,
-    //        flightId: parseInt(flightId),
-    //    } 
-    //    self.flightSuretyApp.methods
-    //        .getFlightInfo(payload.airlineAddress, payload.flightId)
-    //        .call({ from: payload.airlineAddress}, callback);
-    //}
+    async getFlightInfo(airlineAddress, flightId) {
+        let instance = await this.flightSuretyApp.at(this.config.appAddress);
+        return await instance.getFlightInfo(airlineAddress, flightId);
+    }
 
-    //addPassenger(passengerAddress, fromAddress, callback){
-    //    let self = this;
-    //    let payload = {
-    //        passengerAddress: passengerAddress,
-    //        fromAddress: fromAddress
-    //    } 
-    //    self.flightSuretyApp.methods
-    //        .addPassenger(passengerAddress)
-    //        .send({ from: fromAddress}, (error, result) => {
-    //            callback(error, result);
-    //        });
-    //}
+    async addPassenger(passengerAddress){
+        let instance = await this.flightSuretyApp.at(this.config.appAddress);
+        return await instance.addPassenger(passengerAddress, {from: passengerAddress});
+    }
 
-    //getPassengerInfo(passengerAddress, callback) {
-    //    let self = this;
-    //    let payload = {
-    //        passengerAddress: passengerAddress,
-    //    } 
-    //    self.flightSuretyApp.methods
-    //        .getPassenger(payload.passengerAddress)
-    //        .call({ from: payload.passengerAddress}, callback);
-    //}
+    async getPassengerInfo(passengerAddress) {
+        let instance = await this.flightSuretyApp.at(this.config.appAddress);
+        return await instance.getPassenger(passengerAddress, {from: passengerAddress});
+    }
 
-    //buyInsurance(airlineAddress, flightId, passengerAddress, amount, fromAddress, callback){
-    //    let self = this;
-    //    let payload = {
-    //        airlineAddress: airlineAddress,
-    //        flightId: flightId,
-    //        passengerAddress: passengerAddress,
-    //        amount: amount,
-    //        fromAddress: fromAddress
-    //    } 
-    //    self.flightSuretyApp.methods
-    //        .buyInsurance(airlineAddress, flightId, passengerAddress)
-    //        .send({ from: fromAddress, value: this.web3.utils.toWei(amount.toString(), "ether")}, (error, result) => {
-    //            callback(error, result);
-    //        });
-    //}
+    async buyInsurance(airlineAddress, flightId, passengerAddress, amount){
+        let instance = await this.flightSuretyApp.at(this.config.appAddress);
+        return await instance.buyInsurance(airlineAddress,
+                                           flightId,
+                                           passengerAddress,
+                                           {from: passengerAddress,
+                                           value: this.web3.utils.toWei(amount, "ether")});
+    }
 
-    //getInsurance(airlineAddress, flightId, passengerAddress, callback) {
-    //    let self = this;
-    //    let payload = {
-    //        airlineAddress: airlineAddress,
-    //        flightId: flightId,
-    //        passengerAddress: passengerAddress
-    //    } 
-    //    self.flightSuretyApp.methods
-    //        .getInsurance(payload.airlineAddress, payload.flightId, payload.passengerAddress)
-    //        .call({ from: payload.passengerAddress}, callback);
- 
-    //}
+    async getInsurance(airlineAddress, flightId, passengerAddress) {
+        let instance = await this.flightSuretyApp.at(this.config.appAddress);
+        return await instance.getInsurance(airlineAddress,
+                                           flightId,
+                                           passengerAddress,
+                                           {from: passengerAddress});
+    }
 
-    //withdrawMoney(passengerAddress, amount, callback){
-    //    let self = this;
-    //    let payload = {
-    //        passengerAddress: passengerAddress,
-    //        amount: amount
-    //    } 
-    //    self.flightSuretyApp.methods
-    //        .withDrawMoney(passengerAddress, amount)
-    //        .send({ from: passengerAddress}, (error, result) => {
-    //            callback(error, result);
-    //        });
-    //}
+    async withdrawMoney(passengerAddress, amount){
+        let instance = await this.flightSuretyApp.at(this.config.appAddress);
+        return await instance.withdrawMoney(passengerAddress,
+                                            this.web3.utils.toWei(amount, "ether"),
+                                            {from: passengerAddress});
+    }
 
     //callDummy(callback){
     //    let self = this;
