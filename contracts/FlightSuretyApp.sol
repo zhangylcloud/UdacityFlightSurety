@@ -131,11 +131,10 @@ contract FlightSuretyApp {
     function registerAirline(address airlineAddress)
                              external
                              requireIsOperational()
-                             //requireCallerActivatedAirline()
-                             //returns(bool success, uint256 votes)
+                             requireCallerActivatedAirline()
     {
         emit testing(1);
-        //require(!dataContract.isAirline(airlineAddress), "Airline already exist");
+        require(!dataContract.isAirline(airlineAddress), "Airline already exist");
         require(voteMap[airlineAddress][msg.sender] == false, "You have already voted");
         emit testing(2);
         voteMap[airlineAddress][msg.sender] == true;
@@ -159,7 +158,6 @@ contract FlightSuretyApp {
             }
         }
         emit testing(10);
-        //return (success, 0);
     }
 
     function activateAirline(address airlineAddress)
