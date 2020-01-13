@@ -44,7 +44,7 @@ async function startServer()
                                                                    airlineAddress,
                                                                    flightId,
                                                                    flightStatuses[i].statusCode,
-                                                                   {from: flightStatuses[i].oracleAddress}); //???????????Need timestamp support
+                                                                   {from: flightStatuses[i].oracleAddress}); 
             }
             catch(e){
                 console.log(e);

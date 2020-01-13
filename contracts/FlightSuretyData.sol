@@ -26,7 +26,6 @@ contract FlightSuretyData {
         uint flightId;
         address passengerAddress;
         bool isTriggered;
-        bool isPaid;
         uint insuredAmount;
     }
 
@@ -54,7 +53,7 @@ contract FlightSuretyData {
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
-
+    event testing(uint num);
 
     /**
     * @dev Constructor
@@ -305,7 +304,7 @@ contract FlightSuretyData {
     {
         require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].passengerAddress == address(0), "Insurance Already Exist");
         airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress] = 
-            Insurance(airlineAddress, flightId, passengerAddress, false, false, insuranceAmount);
+            Insurance(airlineAddress, flightId, passengerAddress, false, insuranceAmount);
         airlineMap[airlineAddress].flightMap[flightId].passengerInsuredList.push(passengerAddress);
     }
 
@@ -315,7 +314,7 @@ contract FlightSuretyData {
                           external
                           view
                           requireFlightExist(airlineAddress, flightId)
-                          returns(address, uint, address, bool, bool, uint)
+                          returns(address, uint, address, bool, uint)
     {
         require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].passengerAddress != address(0), "Insurance Doesn't Exist");
         Insurance memory insurance = airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress];
@@ -323,7 +322,6 @@ contract FlightSuretyData {
                insurance.flightId, 
                insurance.passengerAddress, 
                insurance.isTriggered,
-               insurance.isPaid,
                insurance.insuredAmount);
     }
 
@@ -363,16 +361,19 @@ contract FlightSuretyData {
                            address passengerAddress,
                            uint insuranceMultipleNumerator,
                            uint insuranceMultipleDenominator)
-                           private
+                           public //TODO
                            requireIsOperational()
                            requirePassengerExist(passengerAddress)
                            requireInsuranceExist(airlineAddress, flightId, passengerAddress)
     {
-        require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isTriggered == true, "insurance is not triggered");
-        require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isPaid == false, "insurance is already credited");
-        airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isPaid = true;
+        require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isTriggered == false, "insurance is already triggered");
+        emit testing(31);
+        airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isTriggered = true;
+        emit testing(32);
         uint insuredAmount = airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].insuredAmount;
+        emit testing(33);
         passengerMap[passengerAddress].creditedAmount.add(insuredAmount.mul(insuranceMultipleNumerator).div(insuranceMultipleDenominator));
+        emit testing(34);
     }
 
     function creditAllInsureesOfFlight(address airlineAddress,
@@ -384,8 +385,9 @@ contract FlightSuretyData {
                                        requireFlightExist(airlineAddress, flightId)
     {
         for(uint i = 0; i < airlineMap[airlineAddress].flightMap[flightId].passengerInsuredList.length; ++i){
-            creditInsuree(airlineAddress, 
-                          flightId, 
+            emit testing(30);
+            creditInsuree(airlineAddress,
+                          flightId,
                           airlineMap[airlineAddress].flightMap[flightId].passengerInsuredList[i],
                           insuranceMultipleNumerator,
                           insuranceMultipleDenominator);

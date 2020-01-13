@@ -8,7 +8,7 @@ const truffleAssert = require('truffle-assertions');
 
     let result = null;
 
-    let contract = new Contract('localhost', () => {
+    let contract = new Contract('localhost', async () => {
 
         // Handle tab bar switches
         let airlineSwitch = DOM.elid('airline-tab-switch');
@@ -56,27 +56,35 @@ const truffleAssert = require('truffle-assertions');
 
 
         // Read transaction
+        //var result1;
+        //try{
+        //    console.log("---------1")
+        //    result1 = await contract.isOperational();
+        //}
+        //catch(e){
+        //    console.log(e);
+        //    display('status', 'Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', value: result1} ]);
+        //}
         //contract.isOperational((error, result) => {
         //    console.log(error,result);
         //    display('status', 'Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
         //});
 
         // User-submitted transaction
-        //DOM.elid('submit-oracle').addEventListener('click', () => {
-        //    let airline = DOM.elid('airline-address-status').value;
-        //    let flight = DOM.elid('flight-number').value;
-        //    // Write transaction
-        //    contract.fetchFlightStatus(airline, flight, (error, result) => {
-        //        display('status', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
-        //    });
-        //})
+        DOM.elid('submit-oracle-btn').addEventListener('click', async () => {
+            let airlineAddress = DOM.elid('airline-address-status').value;
+            let flightId = DOM.elid('flight-number').value;
+            let result = await contract.fetchFlightStatus(airlineAddress, flightId);
+            console.log(result);
+            //contract.fetchFlightStatus(airline, flight, (error, result) => {
+            //    display('status', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
+            //});
+        })
 
         // Register Airlines
         DOM.elid('airline-register-btn').addEventListener('click', async () => {
             let airlineAddress = DOM.elid('airline-address').value;
             let fromAddress = DOM.elid('airline-register-address').value;
-            console.log("----------1");
-            // Write transaction
             let result = await contract.registerAirline(airlineAddress, fromAddress);
             console.log(result);
         })
@@ -161,19 +169,14 @@ const truffleAssert = require('truffle-assertions');
         DOM.elid('withdraw-btn').addEventListener('click', async () => {
             let passengerAddress = DOM.elid('passenger-address-insurance').value;
             let amount = DOM.elid('amount-insurance').value;
-            // Write transaction
             let result = await contract.withdrawMoney(passengerAddress, amount);
             console.log(result);
         })
 
-        //DOM.elid('dummy').addEventListener('click', () => {
-        //    // Write transaction
-        //    contract.callDummy((error, result) => {
-        //        console.log(error);
-        //        console.log(result);
-        //        //display('airline', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
-        //    });
-        //})
+        DOM.elid('operational-status-btn').addEventListener('click', async () => {
+            let result = await contract.isOperational();
+            console.log(result);
+        })
     });
     
 

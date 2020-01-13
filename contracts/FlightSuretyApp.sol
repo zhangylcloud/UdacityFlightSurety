@@ -113,10 +113,10 @@ contract FlightSuretyApp {
 
     function isOperational() 
                             public 
-                            pure 
+                            view
                             returns(bool) 
     {
-        return true;  // Modify to call data contract's status
+        return dataContract.isOperational();  // Modify to call data contract's status
     }
 
     /********************************************************************************************/
@@ -224,7 +224,7 @@ contract FlightSuretyApp {
                           address passengerAddress)
                           external
                           view
-                          returns(address, uint, address, bool, bool, uint)
+                          returns(address, uint, address, bool, uint)
     {
         return dataContract.getInsurance(airlineAddress,
                                          flightId,
@@ -243,10 +243,14 @@ contract FlightSuretyApp {
                                  requireIsOperational()
                                  internal
     {
+        emit testing(26);
         dataContract.setFlightStatusCode(airlineAddress, flightId, statusCode);
         //dataContract.updateFlightTimestamp(airlineAddress, flightId, timestamp);
+        emit testing(27);
         if(statusCode == STATUS_CODE_LATE_AIRLINE){
+            emit testing(28);
             dataContract.creditAllInsurees(airlineAddress, flightId, INSURANCE_MULTIPLE_NUMERATOR, INSURANCE_MULTIPLE_DENOMINATOR);
+            emit testing(29);
         }
     }
 
@@ -256,7 +260,9 @@ contract FlightSuretyApp {
                                uint flightId)
                                external
     {
-        uint8 index = getRandomIndex(msg.sender);
+        //TODO
+        //uint8 index = getRandomIndex(msg.sender);
+        uint8 index = 1;
 
         // Generate a unique key for storing the request
         bytes32 key = keccak256(abi.encodePacked(index, airlineAddress, flightId));
@@ -298,7 +304,7 @@ contract FlightSuretyApp {
     uint256 public constant REGISTRATION_FEE = 1 ether;
 
     // Number of oracles that must respond for valid status
-    uint256 private constant MIN_RESPONSES = 3;
+    uint256 private constant MIN_RESPONSES = 1;
 
 
     struct Oracle {
@@ -386,17 +392,22 @@ contract FlightSuretyApp {
         bytes32 key = keccak256(abi.encodePacked(index, airlineAddress, flightId)); 
         require(oracleResponses[key].isOpen, "Flight do not match oracle request");
 
+        emit testing(21);
         oracleResponses[key].responses[statusCode].push(msg.sender);
 
+        emit testing(22);
         // Information isn't considered verified until at least MIN_RESPONSES
         // oracles respond with the *** same *** information
         emit OracleReport(airlineAddress, flightId, /*timestamp,*/ statusCode);
+        emit testing(23);
         if (oracleResponses[key].responses[statusCode].length >= MIN_RESPONSES) {
 
             emit FlightStatusInfo(airlineAddress, flightId, statusCode);
+            emit testing(24);
 
             // Handle flight status as appropriate
             processFlightStatus(airlineAddress, flightId, /*timestamp,*/ statusCode);
+            emit testing(25);
         }
     }
 
@@ -423,17 +434,22 @@ contract FlightSuretyApp {
                             returns(uint8[3])
     {
         uint8[3] memory indexes;
-        indexes[0] = getRandomIndex(account);
-        
-        indexes[1] = indexes[0];
-        while(indexes[1] == indexes[0]) {
-            indexes[1] = getRandomIndex(account);
-        }
+        indexes[0] = 1;
+        indexes[1] = 2;
+        indexes[2] = 3;
 
-        indexes[2] = indexes[1];
-        while((indexes[2] == indexes[0]) || (indexes[2] == indexes[1])) {
-            indexes[2] = getRandomIndex(account);
-        }
+        //TODO
+        //indexes[0] = getRandomIndex(account);
+        
+        //indexes[1] = indexes[0];
+        //while(indexes[1] == indexes[0]) {
+        //    indexes[1] = getRandomIndex(account);
+        //}
+
+        //indexes[2] = indexes[1];
+        //while((indexes[2] == indexes[0]) || (indexes[2] == indexes[1])) {
+        //    indexes[2] = getRandomIndex(account);
+        //}
 
         return indexes;
     }
@@ -482,7 +498,7 @@ contract FlightSuretyData {
     function setFlightStatusCode(address, uint, uint) external;
     function updateFlightTimestamp(address, uint, uint256) external;
     function addInsurance(address, uint, address, uint) external;
-    function getInsurance(address, uint, address) external view returns(address, uint, address, bool, bool, uint);
+    function getInsurance(address, uint, address) external view returns(address, uint, address, bool, uint);
     function addPassenger(address) external;
     function getPassenger(address) external view returns(address, uint);
     function isPassenger(address) external view returns(bool);

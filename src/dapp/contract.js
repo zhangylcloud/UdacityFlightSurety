@@ -36,26 +36,17 @@ export default class Contract {
         });
     }
 
-    //isOperational(callback) {
-    //   let self = this;
-    //   self.flightSuretyApp.methods
-    //        .isOperational()
-    //        .call({ from: self.owner}, callback);
-    //}
+    async isOperational() {
+        console.log("------------2");
+        let instance = await this.flightSuretyApp.at(this.config.appAddress);
+        console.log("------------3");
+        return await instance.isOperational({from: this.owner});
+    }
 
-    //fetchFlightStatus(airlineAddress, flightId, callback) {
-    //    let self = this;
-    //    let payload = {
-    //        airlineAddress: airlineAddress,
-    //        flightId: flightId,
-    //        //timestamp: Math.floor(Date.now() / 1000)
-    //    } 
-    //    self.flightSuretyApp.methods
-    //        .fetchFlightStatus(payload.airlineAddress, payload.flightId/*, payload.timestamp*/)
-    //        .send({ from: self.owner}, (error, result) => {
-    //            callback(error, payload);
-    //        });
-    //}
+    async fetchFlightStatus(airlineAddress, flightId) {
+        let instance = await this.flightSuretyApp.at(this.config.appAddress);
+        return await instance.fetchFlightStatus(airlineAddress, flightId, {from: airlineAddress});
+    }
 
     async registerAirline(airlineAddress, fromAddress) {
         let instance = await this.flightSuretyApp.at(this.config.appAddress);
@@ -119,13 +110,4 @@ export default class Contract {
                                             this.web3.utils.toWei(amount, "ether"),
                                             {from: passengerAddress});
     }
-
-    //callDummy(callback){
-    //    let self = this;
-    //    self.flightSuretyApp.methods
-    //        .callDummy()
-    //        .send({ from: self.owner}, (error, result) => {
-    //            callback(error, result);
-    //        });
-    //}
 }
