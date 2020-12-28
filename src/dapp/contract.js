@@ -2,6 +2,7 @@ import FlightSuretyApp from '../../build/contracts/FlightSuretyApp.json';
 import Config from './config.json';
 import Web3 from 'web3';
 const TruffleContract = require("truffle-contract");
+const util = require('util');
 
 export default class Contract {
     constructor(network, callback) {
@@ -27,10 +28,12 @@ export default class Contract {
             while(this.airlines.length < 5) {
                 this.airlines.push(accts[counter++]);
             }
+            console.log(this.airlines);
 
             while(this.passengers.length < 5) {
                 this.passengers.push(accts[counter++]);
             }
+            console.log(this.passengers);
 
             callback();
         });
@@ -40,6 +43,7 @@ export default class Contract {
         console.log("------------2");
         let instance = await this.flightSuretyApp.at(this.config.appAddress);
         console.log("------------3");
+        console.log("this owner is " + this.owner);
         return await instance.isOperational({from: this.owner});
     }
 
@@ -76,6 +80,12 @@ export default class Contract {
         let instance = await this.flightSuretyApp.at(this.config.appAddress);
         return await instance.getFlightInfo(airlineAddress, flightId);
     }
+
+    //async updateFlightStatus(airlineAddress, flightId) {
+    //    let instance = await this.flightSuretyApp.at(this.config.appAddress);
+    //    console.log("-----calling fetch flight status")
+    //    return await instance.fetchFlightStatus(airlineAddress, flightId, {from: airlineAddress});
+    //}
 
     async addPassenger(passengerAddress){
         let instance = await this.flightSuretyApp.at(this.config.appAddress);

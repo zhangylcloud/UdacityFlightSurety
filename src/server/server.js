@@ -40,6 +40,8 @@ async function startServer()
         }
         for(let i = 0; i < flightStatuses.length; ++i){
             try{
+                console.log("-----submitting oracle responses status code is ", flightStatuses[i].statusCode, 
+                    " oracle address is ", flightStatuses[i].oracleAddress);
                 await flightSuretyAppInstance.submitOracleResponse(index, 
                                                                    airlineAddress,
                                                                    flightId,
@@ -58,8 +60,12 @@ startServer();
 async function initializeOracles()
 {
     try{
+        //oracleSim = new OracleSim(20,
+        //                          [0, 10, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 30, 40, 50, 50],
+        //                          flightSuretyAppInstance,
+        //                          web3);
         oracleSim = new OracleSim(20,
-                                  [0, 10, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 30, 40, 50, 50],
+                                  [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
                                   flightSuretyAppInstance,
                                   web3);
         await oracleSim.registerOracles();

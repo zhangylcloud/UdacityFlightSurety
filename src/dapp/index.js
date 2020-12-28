@@ -2,7 +2,6 @@
 import DOM from './dom';
 import Contract from './contract';
 import './flightsurety.css';
-const truffleAssert = require('truffle-assertions');
 
 (async() => {
 
@@ -74,33 +73,86 @@ const truffleAssert = require('truffle-assertions');
         DOM.elid('submit-oracle-btn').addEventListener('click', async () => {
             let airlineAddress = DOM.elid('airline-address-status').value;
             let flightId = DOM.elid('flight-number').value;
-            let result = await contract.fetchFlightStatus(airlineAddress, flightId);
-            console.log(result);
-            //contract.fetchFlightStatus(airline, flight, (error, result) => {
-            //    display('status', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
-            //});
+            try{
+                await contract.fetchFlightStatus(airlineAddress, flightId);
+            }
+            catch(e){
+                DOM.elid('status-text').innerHTML = "Fail to submit request to oracles";
+                console.log(e);
+                return;
+            }
         })
 
         // Register Airlines
         DOM.elid('airline-register-btn').addEventListener('click', async () => {
             let airlineAddress = DOM.elid('airline-address').value;
             let fromAddress = DOM.elid('airline-register-address').value;
-            let result = await contract.registerAirline(airlineAddress, fromAddress);
-            console.log(result);
+            let result;
+            try{
+                result = await contract.registerAirline(airlineAddress, fromAddress);
+            }
+            catch(e){
+                DOM.elid('airline-text').innerHTML = "Fail to register airline";
+                console.log(e);
+                return;
+            }
+            try{
+                result = await contract.getAirlineInfo(airlineAddress);
+            }
+            catch(e){
+                DOM.elid('airline-text').innerHTML = "This address is invalid or not a registered airline";
+                console.log(e);
+                return;
+            }
+            let airlineAddressRet = result[0];
+            let airlineActivated = result[1];
+            DOM.elid('airline-text').innerHTML = "Airline address: " + airlineAddressRet + "<br>";
+            DOM.elid('airline-text').innerHTML += "Airline activated: " + airlineActivated + "\n";
         })
 
         // Activate Airlines
         DOM.elid('airline-activation-btn').addEventListener('click', async () => {
             let airlineAddress = DOM.elid('airline-address').value;
             let fromAddress = DOM.elid('airline-register-address').value;
-            let result = await contract.activateAirline(airlineAddress, fromAddress);
-            console.log(result);
+            let result;
+            try{
+                result = await contract.activateAirline(airlineAddress, fromAddress);
+            }
+            catch(e){
+                DOM.elid('airline-text').innerHTML = "Fail to activate airline";
+                console.log(e);
+                return;
+            }
+            try{
+                result = await contract.getAirlineInfo(airlineAddress);
+            }
+            catch(e){
+                DOM.elid('airline-text').innerHTML = "This address is invalid or not a registered airline";
+                console.log(e);
+                return;
+            }
+            let airlineAddressRet = result[0];
+            let airlineActivated = result[1];
+            DOM.elid('airline-text').innerHTML = "Airline address: " + airlineAddressRet + "<br>";
+            DOM.elid('airline-text').innerHTML += "Airline activated: " + airlineActivated + "\n";
         })
 
-        // Activate Airlines
+        // Get Airlines
         DOM.elid('airline-get-btn').addEventListener('click', async () => {
             let airlineAddress = DOM.elid('airline-address').value;
-            let result = await contract.getAirlineInfo(airlineAddress);
+            let result = {};
+            try{
+                result = await contract.getAirlineInfo(airlineAddress);
+            }
+            catch(e){
+                DOM.elid('airline-text').innerHTML = "This address is invalid or not a registered airline";
+                console.log(e);
+                return;
+            }
+            let airlineAddressRet = result[0];
+            let airlineActivated = result[1];
+            DOM.elid('airline-text').innerHTML = "Airline address: " + airlineAddressRet + "<br>";
+            DOM.elid('airline-text').innerHTML += "Airline activated: " + airlineActivated + "<br>";
             console.log(result);
         })
 
@@ -109,33 +161,108 @@ const truffleAssert = require('truffle-assertions');
             let airlineAddress = DOM.elid('airline-address-flight').value;
             let flightId = DOM.elid('flight-id').value;
             // Write transaction
-            let result = await contract.registerFlight(airlineAddress, flightId);
-            console.log(result);
-                //display('airline', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
+            try{
+                await contract.registerFlight(airlineAddress, flightId);
+            }
+            catch(e){
+                DOM.elid('flight-text').innerHTML = "Fail to register flight";
+                console.log(e);
+                return;
+            }
+            let result = {};
+            try{
+                result = await contract.getFlightInfo(airlineAddress, flightId);
+            }
+            catch(e){
+                DOM.elid('flight-text').innerHTML = "Fail to get flight info";
+                console.log(e);
+                return;
+            }
+            let flightIdRet= result[0];
+            let airlineAddressRet = result[1];
+            let statusCode = result[2];
+            DOM.elid('flight-text').innerHTML = "Airline address: " + airlineAddressRet + "<br>";
+            DOM.elid('flight-text').innerHTML += "Flight ID: " + flightIdRet + "<br>";
+            DOM.elid('flight-text').innerHTML += "Flight Status: " + statusCode + "<br>";
         })
 
         // Get Flight 
         DOM.elid('flight-get-btn').addEventListener('click', async () => {
             let airlineAddress = DOM.elid('airline-address-flight').value;
             let flightId = DOM.elid('flight-id').value;
-            // Write transaction
-            let result = await contract.getFlightInfo(airlineAddress, flightId);
+            let result = {};
+            try{
+                result = await contract.getFlightInfo(airlineAddress, flightId);
+            }
+            catch(e){
+                DOM.elid('flight-text').innerHTML = "Fail get flight info";
+                console.log(e);
+                return;
+            }
+            let flightIdRet= result[0];
+            let airlineAddressRet = result[1];
+            let statusCode = result[2];
+            DOM.elid('flight-text').innerHTML = "Airline address: " + airlineAddressRet + "<br>";
+            DOM.elid('flight-text').innerHTML += "Flight ID: " + flightIdRet + "<br>";
+            DOM.elid('flight-text').innerHTML += "Flight Status: " + statusCode + "<br>";
             console.log(result);
-                //display('airline', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
         })
+
+        // update flight status, will trigger oracle 
+        //DOM.elid('flight-update-btn').addEventListener('click', async () => {
+        //    let airlineAddress = DOM.elid('airline-address-flight').value;
+        //    let flightId = DOM.elid('flight-id').value;
+        //    // Write transaction
+        //    console.log("before calling updateFlightStatus");
+        //    let result = await contract.updateFlightStatus(airlineAddress, flightId);
+        //    console.log(result);
+        //        //display('airline', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
+        //})
 
 
         // Add Passenger 
         DOM.elid('passenger-register-btn').addEventListener('click', async () => {
             let passengerAddress = DOM.elid('passenger-address').value;
-            let result = await contract.addPassenger(passengerAddress);
+            let result = {};
+            try{
+                result = await contract.addPassenger(passengerAddress);
+            }
+            catch(e){
+                DOM.elid('passenger-text').innerHTML = "Fail to add passenger";
+                console.log(e);
+                return;
+            }
+            try{
+                result = await contract.getPassengerInfo(passengerAddress);
+            }
+            catch(e){
+                DOM.elid('passenger-text').innerHTML = "Fail to get passenter info";
+                console.log(e);
+                return;
+            }
+            let passengerAddressRet = result[0];
+            let creditedAmount = result[1] / 1000000000000000000;
+            DOM.elid('passenger-text').innerHTML = "Passenger address: " + passengerAddressRet + "<br>";
+            DOM.elid('passenger-text').innerHTML += "Credited amount: " + creditedAmount + "<br>";
             console.log(result);
         })
 
         // Get Passenger 
         DOM.elid('passenger-get-btn').addEventListener('click', async () => {
             let passengerAddress = DOM.elid('passenger-address').value;
-            let result = await contract.getPassengerInfo(passengerAddress);
+            let result = {};
+            try{
+                result = await contract.getPassengerInfo(passengerAddress);
+            }
+            catch(e){
+                DOM.elid('passenger-text').innerHTML = "Fail to get passenter info";
+                console.log(e);
+                return;
+            }
+            let passengerAddressRet = result[0];
+            let creditedAmount = result[1] / 1000000000000000000;
+            DOM.elid('passenger-text').innerHTML = "Passenger address: " + passengerAddressRet + "<br>";
+            DOM.elid('passenger-text').innerHTML += "Credited amount: " + creditedAmount + "<br>";
             console.log(result);
         })
 
@@ -145,11 +272,39 @@ const truffleAssert = require('truffle-assertions');
             let flightId = DOM.elid('flight-id-insurance').value;
             let passengerAddress = DOM.elid('passenger-address-insurance').value;
             let amount = DOM.elid('amount-insurance').value;
-
-            let result = await contract.buyInsurance(airlineAddress, 
+            let result;
+            try{
+                result = await contract.buyInsurance(airlineAddress, 
                                                      flightId, 
                                                      passengerAddress, 
                                                      amount);
+            }
+            catch(e){
+                DOM.elid('insurance-text').innerHTML = "Fail to buy insurance";
+                console.log(e);
+                return;
+            }
+            try{
+                result = await contract.getInsurance(airlineAddress, 
+                                                     flightId, 
+                                                     passengerAddress);
+            }
+            catch(e){
+                DOM.elid('insurance-text').innerHTML = "Fail to get insurance info";
+                console.log(e);
+                return;
+            }
+            let airlineAddressRet = result[0];
+            let flightIdRet = result[1];
+            let passengerAddressRet = result[2];
+            let isTriggered = result[3];
+            let insuredAmount = result[4];
+
+            DOM.elid('insurance-text').innerHTML = "Airline address: " + airlineAddressRet + "<br>";
+            DOM.elid('insurance-text').innerHTML += "FlightId: " + flightIdRet + "<br>";
+            DOM.elid('insurance-text').innerHTML += "Passenger Address: " + passengerAddressRet + "<br>";
+            DOM.elid('insurance-text').innerHTML += "Triggered: " + isTriggered + "<br>";
+            DOM.elid('insurance-text').innerHTML += "Insured Amount: " + insuredAmount / 1000000000000000000 + " ether" + "<br>";
             console.log(result);
         })
 
@@ -158,24 +313,68 @@ const truffleAssert = require('truffle-assertions');
             let airlineAddress = DOM.elid('airline-address-insurance').value;
             let flightId = DOM.elid('flight-id-insurance').value;
             let passengerAddress = DOM.elid('passenger-address-insurance').value;
-
-            let result = await contract.getInsurance(airlineAddress, 
+            let result = {};
+            try{
+                result = await contract.getInsurance(airlineAddress, 
                                                      flightId, 
                                                      passengerAddress);
-            console.log(result);
+            }
+            catch(e){
+                DOM.elid('insurance-text').innerHTML = "Fail to get insurance info";
+                console.log(e);
+                return;
+            }
+            let airlineAddressRet = result[0];
+            let flightIdRet = result[1];
+            let passengerAddressRet = result[2];
+            let isTriggered = result[3];
+            let insuredAmount = result[4];
+
+            DOM.elid('insurance-text').innerHTML = "Airline address: " + airlineAddressRet + "<br>";
+            DOM.elid('insurance-text').innerHTML += "FlightId: " + flightIdRet + "<br>";
+            DOM.elid('insurance-text').innerHTML += "Passenger Address: " + passengerAddressRet + "<br>";
+            DOM.elid('insurance-text').innerHTML += "Triggered: " + isTriggered + "<br>";
+            DOM.elid('insurance-text').innerHTML += "Insured Amount: " + insuredAmount / 1000000000000000000 + " ether" + "<br>";
         })
 
         // withdraw money 
         DOM.elid('withdraw-btn').addEventListener('click', async () => {
             let passengerAddress = DOM.elid('passenger-address-insurance').value;
             let amount = DOM.elid('amount-insurance').value;
-            let result = await contract.withdrawMoney(passengerAddress, amount);
-            console.log(result);
+            try{
+                await contract.withdrawMoney(passengerAddress, amount);
+            }
+            catch(e){
+                DOM.elid('insurance-text').innerHTML = "Fail to withdraw money";
+                console.log(e);
+                return;
+            }
+            let result = {};
+            try{
+                result = await contract.getPassengerInfo(passengerAddress);
+            }
+            catch(e){
+                DOM.elid('insurance-text').innerHTML = "Fail to get credit amount of the passenger";
+                console.log(e);
+                return;
+            }
+            let passengerAddressRet = result[0];
+            let creditedAmount = result[1] / 1000000000000000000;
+            DOM.elid('insurance-text').innerHTML = "Passenger address: " + passengerAddressRet + "<br>";
+            DOM.elid('insurance-text').innerHTML += "Remaining credited amount: " + creditedAmount + "<br>";
         })
 
         DOM.elid('operational-status-btn').addEventListener('click', async () => {
-            let result = await contract.isOperational();
-            console.log(result);
+            let result;
+            try{
+                result = await contract.isOperational();
+            }
+            catch(e){
+                DOM.elid('status-text').innerHTML = "Fail to get contract operational status";
+                console.log(e);
+                return;
+            }
+            DOM.elid('status-text').innerHTML = "Contract operational status: " + result;
         })
     });
     
@@ -183,21 +382,21 @@ const truffleAssert = require('truffle-assertions');
 })();
 
 
-function display(displaySurfix, title, description, results) {
-    let displayDiv = DOM.elid("display-wrapper-" + displaySurfix);
-    console.log("display-wrapper-" + displaySurfix);
-    let section = DOM.section();
-    section.appendChild(DOM.h2(title));
-    section.appendChild(DOM.h5(description));
-    results.map((result) => {
-        let row = section.appendChild(DOM.div({className:'row'}));
-        row.appendChild(DOM.div({className: 'col-sm-4 field'}, result.label));
-        row.appendChild(DOM.div({className: 'col-sm-8 field-value'}, result.error ? String(result.error) : String(result.value)));
-        section.appendChild(row);
-    })
-    displayDiv.append(section);
-
-}
+//function display(displaySurfix, title, description, results) {
+//    let displayDiv = DOM.elid("display-wrapper-" + displaySurfix);
+//    console.log("display-wrapper-" + displaySurfix);
+//    let section = DOM.section();
+//    section.appendChild(DOM.h2(title));
+//    section.appendChild(DOM.h5(description));
+//    results.map((result) => {
+//        let row = section.appendChild(DOM.div({className:'row'}));
+//        row.appendChild(DOM.div({className: 'col-sm-4 field'}, result.label));
+//        row.appendChild(DOM.div({className: 'col-sm-8 field-value'}, result.error ? String(result.error) : String(result.value)));
+//        section.appendChild(row);
+//    })
+//    displayDiv.append(section);
+//
+//}
 
 
 

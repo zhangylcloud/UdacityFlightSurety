@@ -1,6 +1,7 @@
 const truffleAssert = require('truffle-assertions');
 var Test = require('../config/testConfig.js');
 //var BigNumber = require('bignumber.js');
+const util = require('util');
 
 contract('Oracles', async (accounts) => {
 
@@ -20,6 +21,7 @@ contract('Oracles', async (accounts) => {
 
 
     it('can register oracles', async () => {
+        //console.log(util.inspect(config));
         // ARRANGE
         let fee = await config.flightSuretyApp.REGISTRATION_FEE.call();
         // ACT

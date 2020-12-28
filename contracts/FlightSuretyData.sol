@@ -280,6 +280,7 @@ contract FlightSuretyData {
                                  requireIsOperational()
                                  requireFlightExist(airlineAddress, flightId)
     {
+        emit testing(51);
         airlineMap[airlineAddress].flightMap[flightId].departureStatusCode = newStatusCode;
     }
 
@@ -367,13 +368,16 @@ contract FlightSuretyData {
                            requireInsuranceExist(airlineAddress, flightId, passengerAddress)
     {
         require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isTriggered == false, "insurance is already triggered");
-        emit testing(31);
-        airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isTriggered = true;
         emit testing(32);
-        uint insuredAmount = airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].insuredAmount;
+        airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isTriggered = true;
         emit testing(33);
-        passengerMap[passengerAddress].creditedAmount.add(insuredAmount.mul(insuranceMultipleNumerator).div(insuranceMultipleDenominator));
-        emit testing(34);
+        uint insuredAmount = airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].insuredAmount;
+        emit testing(insuredAmount);
+        passengerMap[passengerAddress].creditedAmount = passengerMap[passengerAddress].creditedAmount.add(insuredAmount.mul(insuranceMultipleNumerator).div(insuranceMultipleDenominator));
+        emit testing(insuranceMultipleNumerator);
+        emit testing(insuranceMultipleDenominator);
+        emit testing(insuredAmount.mul(insuranceMultipleNumerator).div(insuranceMultipleDenominator));
+        emit testing(passengerMap[passengerAddress].creditedAmount);
     }
 
     function creditAllInsureesOfFlight(address airlineAddress,
@@ -384,8 +388,10 @@ contract FlightSuretyData {
                                        requireIsOperational()
                                        requireFlightExist(airlineAddress, flightId)
     {
+        emit testing(30);
+        emit testing(airlineMap[airlineAddress].flightMap[flightId].passengerInsuredList.length);
         for(uint i = 0; i < airlineMap[airlineAddress].flightMap[flightId].passengerInsuredList.length; ++i){
-            emit testing(30);
+            emit testing(31);
             creditInsuree(airlineAddress,
                           flightId,
                           airlineMap[airlineAddress].flightMap[flightId].passengerInsuredList[i],
@@ -405,8 +411,10 @@ contract FlightSuretyData {
                  requirePassengerExist(receiverAddress)
                  external
     {
+        emit testing(amount);
+        emit testing(passengerMap[receiverAddress].creditedAmount);
         require(passengerMap[receiverAddress].creditedAmount >= amount, "Balance not enough");
-        passengerMap[receiverAddress].creditedAmount.sub(amount);
+        passengerMap[receiverAddress].creditedAmount = passengerMap[receiverAddress].creditedAmount.sub(amount);
         receiverAddress.transfer(amount);
     }
 
@@ -421,7 +429,9 @@ contract FlightSuretyData {
 
 
     function dummy() external
-    {}
+    {
+        emit testing(100);
+    }
 
     //function getFlightKey
     //                    (

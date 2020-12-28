@@ -50,3 +50,18 @@ Deploy the contents of the ./dapp folder
 * [Solidity Language Reference](http://solidity.readthedocs.io/en/v0.4.24/)
 * [Ethereum Blockchain Explorer](https://etherscan.io/)
 * [Web3Js Reference](https://github.com/ethereum/wiki/wiki/JavaScript-API)
+
+
+
+## Test Steps
+1. Run local blockchain network ```ganache-cli --accounts=100 -e 1000 -m "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"```
+2. Compile smart contract and deploy ```truffle compile```, ```truffle migrate```
+3. Run Oracle server ```npm run server```, oracles will be registered
+4. Run Dapp ```npm run dapp```, available at http://localhost:8000
+
+5. Register 7 airlines
+6. Register 10 passengers
+7. Each passenger will buy a insurance
+8. From the UI, passenger can call fetchFlightStatus and oracle will tell if delayed
+9. passenger can then withdraw money for a delayed flight
+

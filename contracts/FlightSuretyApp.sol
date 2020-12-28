@@ -29,7 +29,7 @@ contract FlightSuretyApp {
 
     uint private constant AIRLINE_COUNT_THRESHOLD = 5;
 
-    uint private constant MAX_INSURANCE_FEE = 1 ether;
+    uint private constant MAX_INSURANCE_FEE = 10 ether;
 
     uint private constant INSURANCE_MULTIPLE_NUMERATOR = 3;
     uint private constant INSURANCE_MULTIPLE_DENOMINATOR = 2;
@@ -241,7 +241,6 @@ contract FlightSuretyApp {
                                  //uint256 timestamp, 
                                  uint8 statusCode)                                
                                  requireIsOperational()
-                                 internal
     {
         emit testing(26);
         dataContract.setFlightStatusCode(airlineAddress, flightId, statusCode);
@@ -249,7 +248,7 @@ contract FlightSuretyApp {
         emit testing(27);
         if(statusCode == STATUS_CODE_LATE_AIRLINE){
             emit testing(28);
-            dataContract.creditAllInsurees(airlineAddress, flightId, INSURANCE_MULTIPLE_NUMERATOR, INSURANCE_MULTIPLE_DENOMINATOR);
+            dataContract.creditAllInsureesOfFlight(airlineAddress, flightId, INSURANCE_MULTIPLE_NUMERATOR, INSURANCE_MULTIPLE_DENOMINATOR);
             emit testing(29);
         }
     }
@@ -304,7 +303,7 @@ contract FlightSuretyApp {
     uint256 public constant REGISTRATION_FEE = 1 ether;
 
     // Number of oracles that must respond for valid status
-    uint256 private constant MIN_RESPONSES = 1;
+    uint256 private constant MIN_RESPONSES = 3;
 
 
     struct Oracle {
@@ -390,7 +389,7 @@ contract FlightSuretyApp {
     {
         require((oracles[msg.sender].indexes[0] == index) || (oracles[msg.sender].indexes[1] == index) || (oracles[msg.sender].indexes[2] == index), "Index does not match oracle request");
         bytes32 key = keccak256(abi.encodePacked(index, airlineAddress, flightId)); 
-        require(oracleResponses[key].isOpen, "Flight do not match oracle request");
+        require(oracleResponses[key].isOpen, "Flight does not match oracle request");
 
         emit testing(21);
         oracleResponses[key].responses[statusCode].push(msg.sender);
@@ -503,7 +502,7 @@ contract FlightSuretyData {
     function getPassenger(address) external view returns(address, uint);
     function isPassenger(address) external view returns(bool);
     //function creditInsurees(address, uint, address, uint) external;
-    function creditAllInsurees(address, uint, uint, uint) external;
+    function creditAllInsureesOfFlight(address, uint, uint, uint) external;
     function withdrawMoney(uint, address) external;
     function fund() public payable;
     function dummy() external;
