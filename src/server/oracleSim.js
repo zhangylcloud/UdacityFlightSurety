@@ -29,7 +29,7 @@ module.exports = class OracleSim {
         let indexes = await this.contract_.getMyIndexes({from: address});
         for(let i = 0; i < indexes.length; ++i){
             console.log("----------1 type of index is ", typeof(indexes[i]));
-            indexes[i] = indexes[i].toNumber(); //??????????????????/
+            indexes[i] = indexes[i].toNumber(); 
             console.log("----------2 type of index is ", typeof(indexes[i]));
         }
         return new Oracle(address, indexes, statusCode);
@@ -43,7 +43,7 @@ module.exports = class OracleSim {
             let account = accounts[20 + i];
             let oracle;
             console.log("-----2.1")
-            if(this.statusCodeArray_[i]) // Ideally should have statusCodeArray length same size as numOracles
+            if(this.statusCodeArray_[i] != undefined) // Ideally should have statusCodeArray length same size as numOracles
                 oracle = await this.createOracle(account, this.statusCodeArray_[i]);
             else
                 oracle = await this.createOracle(account, 10);
@@ -76,7 +76,7 @@ class Oracle {
     }
     getFlightStatus(index, airlineAddress, flightId){
         console.log("-----------------Oracle getFlightStatus index is: " + index);
-        if(this.indexes_.find(ele => {return ele === index}))
+        if(this.indexes_.find(ele => {return ele === index})){
             console.log("-----------------index found for this oracle");
             return {
                 airlineAddress: airlineAddress,
@@ -84,6 +84,7 @@ class Oracle {
                 statusCode: this.statusCode_,
                 oracleAddress: this.address_
             };
+        }
     }
 
 }

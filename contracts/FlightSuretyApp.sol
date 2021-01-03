@@ -29,7 +29,7 @@ contract FlightSuretyApp {
 
     uint private constant AIRLINE_COUNT_THRESHOLD = 5;
 
-    uint private constant MAX_INSURANCE_FEE = 10 ether;
+    uint private constant MAX_INSURANCE_FEE = 1 ether;
 
     uint private constant INSURANCE_MULTIPLE_NUMERATOR = 3;
     uint private constant INSURANCE_MULTIPLE_DENOMINATOR = 2;
@@ -214,7 +214,7 @@ contract FlightSuretyApp {
                           payable
                           requireIsOperational()
     {
-        require(msg.value < MAX_INSURANCE_FEE, "Can't buy insurnace larger than insurance cap");
+        require(msg.value <= MAX_INSURANCE_FEE, "Can't buy insurnace larger than insurance cap");
         address(dataContract).transfer(msg.value);
         dataContract.addInsurance(airlineAddress, flightId, passengerAddress, msg.value);
     }
@@ -259,9 +259,7 @@ contract FlightSuretyApp {
                                uint flightId)
                                external
     {
-        //TODO
-        //uint8 index = getRandomIndex(msg.sender);
-        uint8 index = 1;
+        uint8 index = getRandomIndex(msg.sender);
 
         // Generate a unique key for storing the request
         bytes32 key = keccak256(abi.encodePacked(index, airlineAddress, flightId));
@@ -433,22 +431,18 @@ contract FlightSuretyApp {
                             returns(uint8[3])
     {
         uint8[3] memory indexes;
-        indexes[0] = 1;
-        indexes[1] = 2;
-        indexes[2] = 3;
 
-        //TODO
-        //indexes[0] = getRandomIndex(account);
+        indexes[0] = getRandomIndex(account);
         
-        //indexes[1] = indexes[0];
-        //while(indexes[1] == indexes[0]) {
-        //    indexes[1] = getRandomIndex(account);
-        //}
+        indexes[1] = indexes[0];
+        while(indexes[1] == indexes[0]) {
+            indexes[1] = getRandomIndex(account);
+        }
 
-        //indexes[2] = indexes[1];
-        //while((indexes[2] == indexes[0]) || (indexes[2] == indexes[1])) {
-        //    indexes[2] = getRandomIndex(account);
-        //}
+        indexes[2] = indexes[1];
+        while((indexes[2] == indexes[0]) || (indexes[2] == indexes[1])) {
+            indexes[2] = getRandomIndex(account);
+        }
 
         return indexes;
     }

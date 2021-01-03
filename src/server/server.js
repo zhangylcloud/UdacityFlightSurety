@@ -60,14 +60,14 @@ startServer();
 async function initializeOracles()
 {
     try{
-        //oracleSim = new OracleSim(20,
-        //                          [0, 10, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 30, 40, 50, 50],
-        //                          flightSuretyAppInstance,
-        //                          web3);
         oracleSim = new OracleSim(20,
-                                  [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
+                                  [0, 10, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 30, 40, 50, 50],
                                   flightSuretyAppInstance,
                                   web3);
+        //oracleSim = new OracleSim(20,
+        //                          [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
+        //                          flightSuretyAppInstance,
+        //                          web3);
         await oracleSim.registerOracles();
     }
     catch(e){
