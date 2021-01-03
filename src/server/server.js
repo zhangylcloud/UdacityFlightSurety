@@ -28,6 +28,7 @@ async function startServer()
         
         let airlineAddress = event.returnValues.airlineAddress;
         let flightId = event.returnValues.flightId;
+        let timestamp = event.returnValues.timestamp;
         let index = parseInt(event.returnValues.index, 10);
         let flightStatuses;
         try{
@@ -42,9 +43,11 @@ async function startServer()
             try{
                 console.log("-----submitting oracle responses status code is ", flightStatuses[i].statusCode, 
                     " oracle address is ", flightStatuses[i].oracleAddress);
+                let newTimestamp = flightStatuses[i].statusCode <= 10? timestamp : Date.now();
                 await flightSuretyAppInstance.submitOracleResponse(index, 
                                                                    airlineAddress,
                                                                    flightId,
+                                                                   newTimestamp,
                                                                    flightStatuses[i].statusCode,
                                                                    {from: flightStatuses[i].oracleAddress}); 
             }

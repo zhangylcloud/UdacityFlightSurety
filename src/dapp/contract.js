@@ -2,7 +2,6 @@ import FlightSuretyApp from '../../build/contracts/FlightSuretyApp.json';
 import Config from './config.json';
 import Web3 from 'web3';
 const TruffleContract = require("truffle-contract");
-const util = require('util');
 
 export default class Contract {
     constructor(network, callback) {

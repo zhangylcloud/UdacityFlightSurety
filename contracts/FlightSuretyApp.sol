@@ -202,7 +202,7 @@ contract FlightSuretyApp {
                            uint flightId)
                            external
                            view
-                           returns(uint, address, uint)
+                           returns(uint, address, uint, uint256)
     {
         return dataContract.getFlightInfo(airlineAddress, flightId);
     }
@@ -238,13 +238,13 @@ contract FlightSuretyApp {
     */  
     function processFlightStatus(address airlineAddress, 
                                  uint flightId, 
-                                 //uint256 timestamp, 
+                                 uint256 timestamp, 
                                  uint8 statusCode)                                
                                  requireIsOperational()
     {
         emit testing(26);
         dataContract.setFlightStatusCode(airlineAddress, flightId, statusCode);
-        //dataContract.updateFlightTimestamp(airlineAddress, flightId, timestamp);
+        dataContract.updateFlightTimestamp(airlineAddress, flightId, timestamp);
         emit testing(27);
         if(statusCode == STATUS_CODE_LATE_AIRLINE){
             emit testing(28);
@@ -259,6 +259,12 @@ contract FlightSuretyApp {
                                uint flightId)
                                external
     {
+        address airlineAddressRet;
+        uint flightIdRet;
+        uint statusCodeRet;
+        uint256 timestampRet; 
+        (flightIdRet, airlineAddressRet, statusCodeRet, timestampRet) = 
+            dataContract.getFlightInfo(airlineAddress, flightId);
         uint8 index = getRandomIndex(msg.sender);
 
         // Generate a unique key for storing the request
@@ -267,7 +273,7 @@ contract FlightSuretyApp {
                                                 requester: msg.sender,
                                                 isOpen: true
                                             });
-        emit OracleRequest(index, airlineAddress, flightId);
+        emit OracleRequest(index, airlineAddress, flightId, timestampRet);
     } 
 
     function addPassenger(address passengerAddress)
@@ -328,12 +334,12 @@ contract FlightSuretyApp {
     // Event fired each time an oracle submits a response
     event FlightStatusInfo(address airline, uint flightId, uint8 status);
 
-    event OracleReport(address airline, uint flightId, /*uint256 timestamp,*/ uint8 status);
+    event OracleReport(address airline, uint flightId, uint256 timestamp, uint8 status);
 
     // Event fired when flight status request is submitted
     // Oracles track this and if they have a matching index
     // they fetch data and submit a response
-    event OracleRequest(uint8 index, address airlineAddress, uint flightId);
+    event OracleRequest(uint8 index, address airlineAddress, uint flightId, uint256 timestamp);
 
 
 
@@ -380,7 +386,7 @@ contract FlightSuretyApp {
                             uint8 index,
                             address airlineAddress,
                             uint flightId,
-                            //uint256 timestamp,
+                            uint256 timestamp,
                             uint8 statusCode
                         )
                         external
@@ -395,7 +401,7 @@ contract FlightSuretyApp {
         emit testing(22);
         // Information isn't considered verified until at least MIN_RESPONSES
         // oracles respond with the *** same *** information
-        emit OracleReport(airlineAddress, flightId, /*timestamp,*/ statusCode);
+        emit OracleReport(airlineAddress, flightId, timestamp,statusCode);
         emit testing(23);
         if (oracleResponses[key].responses[statusCode].length >= MIN_RESPONSES) {
 
@@ -403,7 +409,7 @@ contract FlightSuretyApp {
             emit testing(24);
 
             // Handle flight status as appropriate
-            processFlightStatus(airlineAddress, flightId, /*timestamp,*/ statusCode);
+            processFlightStatus(airlineAddress, flightId, timestamp, statusCode);
             emit testing(25);
         }
     }
@@ -486,7 +492,7 @@ contract FlightSuretyData {
     function setAirlineActivateStatus(address, bool) external;
     function getAirlineInfo(address) external view returns(address, bool);
     function isAirline(address) external view returns(bool);
-    function getFlightInfo(address, uint) external view returns(uint, address, uint);
+    function getFlightInfo(address, uint) external view returns(uint, address, uint, uint256);
     function addFlight(address, uint, uint, uint256) external;
     function setFlightStatusCode(address, uint, uint) external;
     function updateFlightTimestamp(address, uint, uint256) external;

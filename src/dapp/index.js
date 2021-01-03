@@ -181,9 +181,11 @@ import './flightsurety.css';
             let flightIdRet= result[0];
             let airlineAddressRet = result[1];
             let statusCode = result[2];
+            let timestamp = result[3];
             DOM.elid('flight-text').innerHTML = "Airline address: " + airlineAddressRet + "<br>";
             DOM.elid('flight-text').innerHTML += "Flight ID: " + flightIdRet + "<br>";
             DOM.elid('flight-text').innerHTML += "Flight Status: " + statusCode + "<br>";
+            DOM.elid('flight-text').innerHTML += "Flight Timestamp: " + timestamp + "<br>";
         })
 
         // Get Flight 
@@ -202,9 +204,11 @@ import './flightsurety.css';
             let flightIdRet= result[0];
             let airlineAddressRet = result[1];
             let statusCode = result[2];
+            let timestamp = result[3];
             DOM.elid('flight-text').innerHTML = "Airline address: " + airlineAddressRet + "<br>";
             DOM.elid('flight-text').innerHTML += "Flight ID: " + flightIdRet + "<br>";
             DOM.elid('flight-text').innerHTML += "Flight Status: " + statusCode + "<br>";
+            DOM.elid('flight-text').innerHTML += "Flight Timestamp: " + timestamp + "<br>";
             console.log(result);
         })
 

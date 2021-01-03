@@ -252,13 +252,14 @@ contract FlightSuretyData {
                        external
                        view
                        requireFlightExist(airlineAddress, flightId)
-                       returns (uint, address, uint)
+                       returns (uint, address, uint, uint256)
     {
         Flight memory flight = airlineMap[airlineAddress].flightMap[flightId];
         uint flightIdRet = flight.flightId;
         address airlineAddressRet = flight.airlineAddress;
         uint departureStatusCodeRet = flight.departureStatusCode;
-        return(flightIdRet, airlineAddressRet, departureStatusCodeRet);
+        uint256 timestamp = flight.timestamp;
+        return(flightIdRet, airlineAddressRet, departureStatusCodeRet, timestamp);
     }
 
     function addFlight(address airlineAddress,
