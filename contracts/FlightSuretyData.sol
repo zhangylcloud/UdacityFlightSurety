@@ -9,8 +9,6 @@ contract FlightSuretyData {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
-    uint insurancePrice = 1 ether;
-
     // Smart Contract Control
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
@@ -53,7 +51,6 @@ contract FlightSuretyData {
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
-    event testing(uint num);
 
     /**
     * @dev Constructor
@@ -281,7 +278,6 @@ contract FlightSuretyData {
                                  requireIsOperational()
                                  requireFlightExist(airlineAddress, flightId)
     {
-        emit testing(51);
         airlineMap[airlineAddress].flightMap[flightId].departureStatusCode = newStatusCode;
     }
 
@@ -369,16 +365,9 @@ contract FlightSuretyData {
                            requireInsuranceExist(airlineAddress, flightId, passengerAddress)
     {
         require(airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isTriggered == false, "insurance is already triggered");
-        emit testing(32);
         airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].isTriggered = true;
-        emit testing(33);
         uint insuredAmount = airlineMap[airlineAddress].flightMap[flightId].insuranceMap[passengerAddress].insuredAmount;
-        emit testing(insuredAmount);
         passengerMap[passengerAddress].creditedAmount = passengerMap[passengerAddress].creditedAmount.add(insuredAmount.mul(insuranceMultipleNumerator).div(insuranceMultipleDenominator));
-        emit testing(insuranceMultipleNumerator);
-        emit testing(insuranceMultipleDenominator);
-        emit testing(insuredAmount.mul(insuranceMultipleNumerator).div(insuranceMultipleDenominator));
-        emit testing(passengerMap[passengerAddress].creditedAmount);
     }
 
     function creditAllInsureesOfFlight(address airlineAddress,
@@ -389,10 +378,7 @@ contract FlightSuretyData {
                                        requireIsOperational()
                                        requireFlightExist(airlineAddress, flightId)
     {
-        emit testing(30);
-        emit testing(airlineMap[airlineAddress].flightMap[flightId].passengerInsuredList.length);
         for(uint i = 0; i < airlineMap[airlineAddress].flightMap[flightId].passengerInsuredList.length; ++i){
-            emit testing(31);
             creditInsuree(airlineAddress,
                           flightId,
                           airlineMap[airlineAddress].flightMap[flightId].passengerInsuredList[i],
@@ -412,8 +398,6 @@ contract FlightSuretyData {
                  requirePassengerExist(receiverAddress)
                  external
     {
-        emit testing(amount);
-        emit testing(passengerMap[receiverAddress].creditedAmount);
         require(passengerMap[receiverAddress].creditedAmount >= amount, "Balance not enough");
         passengerMap[receiverAddress].creditedAmount = passengerMap[receiverAddress].creditedAmount.sub(amount);
         receiverAddress.transfer(amount);
@@ -428,25 +412,7 @@ contract FlightSuretyData {
     {
     }
 
-
-    function dummy() external
-    {
-        emit testing(100);
-    }
-
-    //function getFlightKey
-    //                    (
-    //                        address airline,
-    //                        string memory flight,
-    //                        uint256 timestamp
-    //                    )
-    //                    pure
-    //                    internal
-    //                    returns(bytes32) 
-    //{
-    //    return keccak256(abi.encodePacked(airline, flight, timestamp));
-    //}
-
+   
     /**
     * @dev Fallback function for funding smart contract.
     *

@@ -36,14 +36,6 @@ contract FlightSuretyApp {
 
     address private contractOwner;          // Account used to deploy contract
 
-    //struct Flight {
-    //    bool isRegistered;
-    //    uint8 statusCode;
-    //    uint256 updatedTimestamp;        
-    //    address airline;
-    //}
-    //mapping(bytes32 => Flight) private flights;
-
     mapping(address => mapping(address => bool)) voteMap; //  mapping(newAirlineAddress => mapping(voterAddress => isVoteYes))
     mapping(address => uint) voteCountMap; // mapping(newAirlineAddress => voteCount)
 
@@ -133,31 +125,21 @@ contract FlightSuretyApp {
                              requireIsOperational()
                              requireCallerActivatedAirline()
     {
-        emit testing(1);
         require(!dataContract.isAirline(airlineAddress), "Airline already exist");
         require(voteMap[airlineAddress][msg.sender] == false, "You have already voted");
-        emit testing(2);
         voteMap[airlineAddress][msg.sender] == true;
         voteCountMap[airlineAddress] = voteCountMap[airlineAddress] + 1;
-        emit testing(3);
         voteMap[airlineAddress][msg.sender] == true;
         uint airlineCount = dataContract.getAirlineCount();
-        emit testing(4);
         voteMap[airlineAddress][msg.sender] == true;
         if(airlineCount < AIRLINE_COUNT_THRESHOLD){
-            emit testing(5);
             dataContract.registerAirline(airlineAddress, msg.sender);
-            emit testing(6);
         }
         else{
-            emit testing(7);
             if(voteCountMap[airlineAddress].mul(2) >= airlineCount){
-                emit testing(8);
                 dataContract.registerAirline(airlineAddress, msg.sender);
-                emit testing(9);
             }
         }
-        emit testing(10);
     }
 
     function activateAirline(address airlineAddress)
@@ -242,14 +224,10 @@ contract FlightSuretyApp {
                                  uint8 statusCode)                                
                                  requireIsOperational()
     {
-        emit testing(26);
         dataContract.setFlightStatusCode(airlineAddress, flightId, statusCode);
         dataContract.updateFlightTimestamp(airlineAddress, flightId, timestamp);
-        emit testing(27);
         if(statusCode == STATUS_CODE_LATE_AIRLINE){
-            emit testing(28);
             dataContract.creditAllInsureesOfFlight(airlineAddress, flightId, INSURANCE_MULTIPLE_NUMERATOR, INSURANCE_MULTIPLE_DENOMINATOR);
-            emit testing(29);
         }
     }
 
@@ -395,40 +373,21 @@ contract FlightSuretyApp {
         bytes32 key = keccak256(abi.encodePacked(index, airlineAddress, flightId)); 
         require(oracleResponses[key].isOpen, "Flight does not match oracle request");
 
-        emit testing(21);
         oracleResponses[key].responses[statusCode].push(msg.sender);
 
-        emit testing(22);
         // Information isn't considered verified until at least MIN_RESPONSES
         // oracles respond with the *** same *** information
         emit OracleReport(airlineAddress, flightId, timestamp,statusCode);
-        emit testing(23);
         if (oracleResponses[key].responses[statusCode].length >= MIN_RESPONSES) {
 
             emit FlightStatusInfo(airlineAddress, flightId, statusCode);
-            emit testing(24);
 
             // Handle flight status as appropriate
             processFlightStatus(airlineAddress, flightId, timestamp, statusCode);
-            emit testing(25);
         }
     }
 
 
-    //function getFlightKey
-    //                    (
-    //                        address airline,
-    //                        string flight,
-    //                        uint256 timestamp
-    //                    )
-    //                    pure
-    //                    internal
-    //                    returns(bytes32) 
-    //{
-    //    return keccak256(abi.encodePacked(airline, flight, timestamp));
-    //}
-
-    // Returns array of three non-duplicating integers from 0-9
     function generateIndexes
                             (                       
                                 address account         
@@ -473,15 +432,6 @@ contract FlightSuretyApp {
         return random;
     }
 
-
-    function callDummy() external
-    {
-        emit testing(10);
-        dataContract.dummy();
-    }
-
-// endregion
-
 }   
 
 contract FlightSuretyData {
@@ -501,9 +451,7 @@ contract FlightSuretyData {
     function addPassenger(address) external;
     function getPassenger(address) external view returns(address, uint);
     function isPassenger(address) external view returns(bool);
-    //function creditInsurees(address, uint, address, uint) external;
     function creditAllInsureesOfFlight(address, uint, uint, uint) external;
     function withdrawMoney(uint, address) external;
     function fund() public payable;
-    function dummy() external;
 }

@@ -8,7 +8,6 @@ export default class Contract {
         this.config = Config[network];
         let web3provider = new Web3.providers.WebsocketProvider(this.config.url.replace('http', 'ws'));
         this.web3 = new Web3(web3provider);
-        //this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
         this.flightSuretyApp = TruffleContract(FlightSuretyApp);
         this.flightSuretyApp.setProvider(web3provider);
         this.initialize(callback);
@@ -39,10 +38,7 @@ export default class Contract {
     }
 
     async isOperational() {
-        console.log("------------2");
         let instance = await this.flightSuretyApp.at(this.config.appAddress);
-        console.log("------------3");
-        console.log("this owner is " + this.owner);
         return await instance.isOperational({from: this.owner});
     }
 
@@ -79,12 +75,6 @@ export default class Contract {
         let instance = await this.flightSuretyApp.at(this.config.appAddress);
         return await instance.getFlightInfo(airlineAddress, flightId);
     }
-
-    //async updateFlightStatus(airlineAddress, flightId) {
-    //    let instance = await this.flightSuretyApp.at(this.config.appAddress);
-    //    console.log("-----calling fetch flight status")
-    //    return await instance.fetchFlightStatus(airlineAddress, flightId, {from: airlineAddress});
-    //}
 
     async addPassenger(passengerAddress){
         let instance = await this.flightSuretyApp.at(this.config.appAddress);

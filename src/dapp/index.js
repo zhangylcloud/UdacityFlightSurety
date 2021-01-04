@@ -51,37 +51,7 @@ import './flightsurety.css';
             });
         }
 
-         
-
-
-        // Read transaction
-        //var result1;
-        //try{
-        //    console.log("---------1")
-        //    result1 = await contract.isOperational();
-        //}
-        //catch(e){
-        //    console.log(e);
-        //    display('status', 'Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', value: result1} ]);
-        //}
-        //contract.isOperational((error, result) => {
-        //    console.log(error,result);
-        //    display('status', 'Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
-        //});
-
-        // User-submitted transaction
-        DOM.elid('submit-oracle-btn').addEventListener('click', async () => {
-            let airlineAddress = DOM.elid('airline-address-status').value;
-            let flightId = DOM.elid('flight-number').value;
-            try{
-                await contract.fetchFlightStatus(airlineAddress, flightId);
-            }
-            catch(e){
-                DOM.elid('status-text').innerHTML = "Fail to submit request to oracles";
-                console.log(e);
-                return;
-            }
-        })
+        
 
         // Register Airlines
         DOM.elid('airline-register-btn').addEventListener('click', async () => {
@@ -211,18 +181,6 @@ import './flightsurety.css';
             DOM.elid('flight-text').innerHTML += "Flight Timestamp: " + timestamp + "<br>";
             console.log(result);
         })
-
-        // update flight status, will trigger oracle 
-        //DOM.elid('flight-update-btn').addEventListener('click', async () => {
-        //    let airlineAddress = DOM.elid('airline-address-flight').value;
-        //    let flightId = DOM.elid('flight-id').value;
-        //    // Write transaction
-        //    console.log("before calling updateFlightStatus");
-        //    let result = await contract.updateFlightStatus(airlineAddress, flightId);
-        //    console.log(result);
-        //        //display('airline', 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.airline + ' ' + result.flight + ' ' + result.timestamp} ]);
-        //})
-
 
         // Add Passenger 
         DOM.elid('passenger-register-btn').addEventListener('click', async () => {
@@ -368,6 +326,21 @@ import './flightsurety.css';
             DOM.elid('insurance-text').innerHTML += "Remaining credited amount: " + creditedAmount + "<br>";
         })
 
+        // User-submitted transaction
+        DOM.elid('submit-oracle-btn').addEventListener('click', async () => {
+            let airlineAddress = DOM.elid('airline-address-status').value;
+            let flightId = DOM.elid('flight-number').value;
+            try{
+                await contract.fetchFlightStatus(airlineAddress, flightId);
+            }
+            catch(e){
+                DOM.elid('status-text').innerHTML = "Fail to submit request to oracles";
+                console.log(e);
+                return;
+            }
+            DOM.elid('status-text').innerHTML = "Submitted requests to oracles to fetch newest flight status";
+        })
+
         DOM.elid('operational-status-btn').addEventListener('click', async () => {
             let result;
             try{
@@ -384,26 +357,6 @@ import './flightsurety.css';
     
 
 })();
-
-
-//function display(displaySurfix, title, description, results) {
-//    let displayDiv = DOM.elid("display-wrapper-" + displaySurfix);
-//    console.log("display-wrapper-" + displaySurfix);
-//    let section = DOM.section();
-//    section.appendChild(DOM.h2(title));
-//    section.appendChild(DOM.h5(description));
-//    results.map((result) => {
-//        let row = section.appendChild(DOM.div({className:'row'}));
-//        row.appendChild(DOM.div({className: 'col-sm-4 field'}, result.label));
-//        row.appendChild(DOM.div({className: 'col-sm-8 field-value'}, result.error ? String(result.error) : String(result.value)));
-//        section.appendChild(row);
-//    })
-//    displayDiv.append(section);
-//
-//}
-
-
-
 
 
 
