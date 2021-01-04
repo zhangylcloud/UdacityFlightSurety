@@ -28,11 +28,11 @@ Address 20-39 are for oracles.
 3. Register Passenger
     1. Switch to passenger tab. Fill in address 10 (or any address between address 10-19) in the entry box and then click "Register Passenger" to register a passenger.
 4. Buy Insurance
-    1. Switch to insurance tab. Filling an activated airline address in the first box. Fill in an registered flight Id in the second box. Filling a registered passenger address in the third box. Fill in a insurance amount in the forth box (must <= 1 ether). Click "Buy Insurance" button to buy insurance. In the text box below we will see the insurance is not trigger in the beginning.
-    2. Switch to Status tab. Fill in the airline address of the insurance in the first box, and then fill in the flight Id of the insurance in the second box. click "Submit to Oracles" button to send a event to the oracles server. Oracles server will send a simulated responses back by calling submitOracleResponse in the app contract to update the flight status. At this time, if flight is late, the insurance will be triggered. 
+    1. Switch to insurance tab. Filling an activated airline address in the first box. Fill in an registered flight Id in the second box. Filling a registered passenger address in the third box. Fill in a insurance amount in the forth box (must <= 1 ether). Click "Buy Insurance" button to buy insurance. In the text area below we will see the insurance is not trigger in the beginning.
+    2. Switch to Status tab. Fill in the airline address of the insurance in the first box, and then fill in the flight Id of the insurance in the second box. click "Submit to Oracles" button to send a event to the oracles server(This is not very stable. Sometimes the Oracle server doesn't catch the event. In such case, just click again).  Oracles server will send a simulated responses back by calling submitOracleResponse in the app contract to update the flight status. At this time, if flight is late, the insurance will be triggered. 
     3. Switch back to Insurance tab, click "Get Insurance Info" button. We will see if the insurance is triggered. 
-    4. If Insurance is triggered, switch back to Passenger tab. Click Get Passenger Info Tab, we should see Credited amount = 1.5 * insurance amount in the text box below. 
-    5. Switch back to Insurance tab, click Withdraw Money to withdraw amount < Credited amount. We can check the remaining credited amount by switching back to passenger tab to check. 
+    4. If Insurance is triggered, switch back to Passenger tab. Click Get Passenger Info Tab, we should see Credited amount = 1.5 * insurance amount in the text area below. 
+    5. Switch back to Insurance tab, click Withdraw Money to withdraw amount < Credited amount. We can see the remaining credited amount in the text area below.
 6. Check if contract is operational
     1. Switch to Status tab, click Get Operational Status to check if contract is operational.
 
